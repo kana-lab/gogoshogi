@@ -17,6 +17,7 @@
 #define USER  1   // これらはユーザーとAIを表す定数であり、変更しない事とする
 #define AI    -1  // よって、これらの具体値に依存するコードを書いても良い
 
+#define EMPTY 0
 #define FU    1
 #define KAKU  2
 #define HISHA 3
