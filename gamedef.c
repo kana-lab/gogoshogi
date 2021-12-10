@@ -51,6 +51,11 @@ typedef struct {  // 96bitのハッシュを入れる構造体
  *   - debug_print
  *   - print_board_for_debug
  *   - abort_game
+ *   - encode
+ *   - decode
+ *   - array_equal
+ *   - string_to_action
+ *   - action_to_string
  *****************************/
 
 void debug_print(const char *msg, ...) {
@@ -135,6 +140,30 @@ void abort_game(int loser) {
     }
 
     exit(1);
+}
+
+Hash encode(Board *b) {
+    // 盤面bを96bitのハッシュに潰す
+}
+
+Board decode(Hash h) {
+    // ハッシュ値hをBoardに展開する
+}
+
+int array_equal(Hash h1, Hash h2) {
+    // 2つのハッシュ値が等しいか否かを判定
+    // 等しければ1、等しくなければ0を返す
+}
+
+Action string_to_action(const char *action_string) {
+    // action_stringは「グループ課題: 2回目」のページで指定されている、駒の動きを表す文字列
+    // これを解析し、Action型の変数に詰め込んで戻り値として返す
+}
+
+void action_to_string(Action action, char return_buffer[32]) {
+    // actionの表す駒の動きを、「グループ課題: 2回目」のページで指定されているフォーマットに
+    // 従った文字列に翻訳し、return_bufferに入れる
+    // 文字列の最後には番兵として(数字の)0を入れること！
 }
 
 
