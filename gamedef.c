@@ -18,18 +18,17 @@
 #define AI    -1  // よって、これらの具体値に依存するコードを書いても良い
 
 #define FU    1
-#define KIN   2
-#define GIN   3
-#define KAKU  4
-#define HISHA 5
+#define KAKU  2
+#define HISHA 3
+#define GIN   4
+#define KIN   5
 #define OU    6
-#define NARI  8  // 例えば歩が成った場合は FU + NARI と書く
+#define NARI  6  // 例えば歩が成った場合は FU + NARI と書く
 
-typedef struct {        // 盤面を(持ち駒とセットで)入れておく構造体
-    int board[5][5];    // 盤面
-    int user_stock[7];  // ユーザーの持ち駒
-    int ai_stock[7];    // AIの持ち駒
-    int next_player;    // 次に駒を打つプレイヤー ( AI または USER )
+typedef struct {            // 盤面を(持ち駒とセットで)入れておく構造体
+    int board[5][5];        // 盤面
+    int next_stock[6];      // ユーザーの持ち駒
+    int previous_stock[6];  // AIの持ち駒
 } Board;
 
 typedef struct {     // 駒の移動を表す構造体
