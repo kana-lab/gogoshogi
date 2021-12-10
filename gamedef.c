@@ -40,6 +40,11 @@ typedef struct {     // 駒の移動を表す構造体
     int turn_over;   // 移動後に成るか否か
 } Action;
 
+typedef struct {  // 96bitのハッシュを入れる構造体
+    int upper;    // upperには上位の32bitを入れる
+    int lower;    // lowerには下位の64bitを入れる
+} Hash;
+
 
 /*****************************
  * ユーティリティー関数の定義
