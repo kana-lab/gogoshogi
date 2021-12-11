@@ -54,6 +54,7 @@ void update_board(Board *b, Action action) {
 
     if (action.from_stock) {  // 持ち駒を打つ場合
         b->board[action.to_x][action.to_y] = action.from_stock;
+        --b->next_stock[action.from_stock];
     } else {  // 駒を動かす場合
         int piece = b->board[action.from_x][action.from_y];
         b->board[action.from_x][action.from_y] = EMPTY;  // 移動元を空にする
