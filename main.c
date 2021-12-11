@@ -1,18 +1,16 @@
 #include "gamedef.c"
 #include "gameutils.c"
 
+#define MAX_TURN 150
+
 
 /*************************
  * 未定義の関数群
  * これから分担して実装する
- *   - create_board
  *   - is_threefold_repetition
  *   - stop_watch
- *   - get_user_action
  *   - move_piece
  *   - get_ai_action
- *   - display_action
- *   - is_game_over
  *************************/
 
 // debug_print関数を積極的に利用し、随所にエラーメッセージを散りばめること！
@@ -27,12 +25,6 @@ void stop_watch(void (*func)()) {
     // とりあえず引数は関数ポインタにしておきましたが、自由に変更して下さい
 }
 
-Action get_user_action() {
-    // ユーザー入力を受けて、その文字列をAction型の変数に翻訳して返す
-    // 例えば"3CGI"が入力された場合、aをAction型の変数として
-    //   a.from_stock = GI, a.to_x = 2, a.to_y = 2, a.turn_over = 0
-    // となる。なお、この場合 a.from_x, a.from_y は何でも良い。
-}
 
 void move_piece(Board *b, Action action) {
     // actionで示される行動をもとに、盤面bを変更する
@@ -42,28 +34,41 @@ void move_piece(Board *b, Action action) {
     // さらに細分化する余地がありそう
 }
 
-Action get_ai_action(Board *b) {
+Action get_ai_action(Board *b, int turn) {
     // 盤面bを受け取って、次にAIがどう打つべきかを決定する
     // 次の行動はAction型の変数にして返す
 }
 
-void display_action(Action action) {
+
+/************************
+ * 以下プログラムの本流
+ ************************/
+
+Action get_user_action(int turn) {
+    // ユーザー入力を受けて、その文字列をAction型の変数に翻訳して返す
+
+    // ユーザーからの入力を受ける
+    char buf[32] = {};
+    scanf("%31s", buf);
+
+    Action action = string_to_action(buf);
+
+    if (turn % 2 == 0)  // 偶数手番のとき盤面の逆転がある
+        reverse_action(&action);
+
+    return action;
+}
+
+void display_action(Action action, int turn) {
     // actionの表す行動を、"2A3A"等の文字列に変換してプリントする
+
+    if (turn % 2 == 0)  // 偶数手番のとき盤面の逆転がある
+        reverse_action(&action);
+
+    char buf[32] = {};
+    action_to_string(action, buf);
+    puts(buf);
 }
-
-int is_game_over(Board *b) {
-    // 盤面bを受け取り、 b->next_player で表される次のプレイヤーが詰まされているか否かを判断する
-    // 戻り値として勝者を表す整数 (AI または USER) を返し、勝敗が付いていなければ0を返す
-    // 例えば、 b->next_player = USER であったとし、ユーザーが詰みであるならば、AI を返す
-    // 王手がかかっていなくても詰みになる状態がある (「ステイルメイト」) が、
-    // ステイルメイトの場合は次のターンに自動的に相手が反則負けになるので、この関数では
-    // 王手がかかっている状況のみを考えればよい
-}
-
-
-/***********************************
- * 以下プログラムの本流であるmain関数
- ***********************************/
 
 int main(int argc, char *argv[]) {
     // 引数の個数をチェック
@@ -73,40 +78,53 @@ int main(int argc, char *argv[]) {
     }
 
     // 先手か後手か
-    int first_mover;
+    int first_is_user;
+    int second_is_user;
     if (!strcmp(argv[1], "0")) {
-        first_mover = USER;
+        first_is_user = 1;
+        second_is_user = 0;
     } else if (!strcmp(argv[1], "1")) {
-        first_mover = AI;
+        first_is_user = 0;
+        second_is_user = 1;
     } else {
         puts("invalid command line argument.");
         return -1;
     }
 
     // 初期化済みの盤面を作る
-    Board board = create_board(first_mover);
+    Board board = create_board(first_is_user ? USER : AI);
     print_board_for_debug(&board);
 
     // ゲームのループをまわし、勝者を決める
-    int winner;
-    for (int i = 0; i < 150; ++i) {  // 150手以内
+    int winner = 0;
+    for (int turn = 1; turn <= MAX_TURN; ++turn) {  // 150手以内
         Action action;
 
-        if (board.next_player == USER) {
-            action = get_user_action();
-        } else if (board.next_player == AI) {
-            action = get_ai_action(&board);
-            display_action(action);
-        } else {
-            debug_print("ERROR: unknown player %d", board.next_player);
-            exit(1);
+        if (turn % 2) {  // 奇数手番, 盤面の逆転なし
+            if (first_is_user) {
+                action = get_user_action(turn);
+            } else {
+                action = get_ai_action(&board, turn);
+                display_action(action, turn);
+            }
+        } else {  // 偶数手番, 盤面の逆転あり
+            if (second_is_user) {
+                action = get_user_action(turn);
+            } else {
+                action = get_ai_action(&board, turn);
+                display_action(action, turn);
+            }
         }
 
         move_piece(&board, action);
         print_board_for_debug(&board);
 
-        if ((winner = is_game_over(&board)))  // 勝敗が付いているかのチェック
+        if (is_checkmate(&board)) {  // 勝敗が付いているかのチェック
+            winner = (first_is_user + turn) % 2 ? USER : AI;
             break;
+        }
+
+        reverse_board(&board);
     }
 
     // 勝敗の表示
