@@ -154,6 +154,8 @@ Board decode(Hash h) {
 int array_equal(Hash h1, Hash h2) {
     // 2つのハッシュ値が等しいか否かを判定
     // 等しければ1、等しくなければ0を返す
+
+    return (h1.lower == h2.lower) && (h1.upper == h2.upper);
 }
 
 Action string_to_action(const char *action_string) {
