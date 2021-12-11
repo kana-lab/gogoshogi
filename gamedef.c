@@ -146,6 +146,16 @@ void abort_game(int loser) {
     exit(1);
 }
 
+typedef union {
+    unsigned char to_char;
+    struct {                        // ハッシュのエンコード及びデコード時に使う構造体
+        unsigned char index: 5;     // 駒の位置 (自分の持ち駒は25、相手の持ち駒は26)
+        unsigned char owner: 1;     // 所有 (0なら自分、1なら相手)
+        unsigned char promoted: 1;  // 成っているか否か
+        unsigned char is_valid: 1;  // 余った1ビットは、このハッシュの領域が有効か否かを表すのに使う
+    };
+} HashField;
+
 Hash encode(Board *b) {
     // 盤面bを96bitのハッシュに潰す
     // 駒は2枚×6種であり、各種別ごとに2byteのフィールドを与える (計96bit)
