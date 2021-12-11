@@ -1,7 +1,5 @@
 #include "gamedef.c"
 
-#include <assert.h>
-
 #define TOP 0           // 駒が成れるx座標
 #define LEN_ACTIONS 300 // 選択可能な指手の個数の最大値
 
