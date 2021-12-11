@@ -26,6 +26,8 @@
 #define OU    6
 #define NARI  6  // 例えば歩が成った場合は FU + NARI と書く
 
+#define MAX_PIECE_NUMBER 10 // 駒を表す数の最大値
+
 typedef struct {            // 盤面を(持ち駒とセットで)入れておく構造体
     int board[5][5];        // 盤面
     int next_stock[6];      // ユーザーの持ち駒
