@@ -10,6 +10,7 @@
 
 /************************************
  * 定義済み関数一覧
+ *   - create_board
  *   - reverse_board
  *   - is_checked
  *   - is_checkmate
@@ -19,6 +20,11 @@
  *   - get_all_possible_actions
  *   - is_possible_action
  ************************************/
+
+Board create_board(int first_mover) {
+    // Board型の盤面を作って初期化し、それを戻り値として返す
+    // first_mover引数は先手を表し、USER か AI のいずれかである
+}
 
 void reverse_board(Board *b) {
     // 盤面を反転させる

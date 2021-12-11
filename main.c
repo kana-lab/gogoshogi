@@ -1,4 +1,5 @@
 #include "gamedef.c"
+#include "gameutils.c"
 
 
 /*************************
@@ -15,11 +16,6 @@
  *************************/
 
 // debug_print関数を積極的に利用し、随所にエラーメッセージを散りばめること！
-
-Board create_board(int first_mover) {
-    // Board型の盤面を作って初期化し、それを戻り値として返す
-    // first_mover引数は先手を表し、USER か AI のいずれかである
-}
 
 void is_threefold_repetition(Board *b, Action action, int first_mover) {
     // 千日手の判定をし、千日手の場合は後手勝ちにする
