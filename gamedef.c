@@ -38,7 +38,7 @@ typedef struct {     // 駒の移動を表す構造体
     int from_y;      // 持ち駒を打つ場合は何でも良い
     int to_x;        // 駒の移動先の座標
     int to_y;
-    int turn_over;   // 移動後に成るか否か
+    int promotion;   // 移動後に成るか否か
 } Action;
 
 typedef struct {  // 96bitのハッシュを入れる構造体
