@@ -159,6 +159,9 @@ int array_equal(Hash h1, Hash h2) {
 Action string_to_action(const char *action_string) {
     // action_stringは「グループ課題: 2回目」のページで指定されている、駒の動きを表す文字列
     // これを解析し、Action型の変数に詰め込んで戻り値として返す
+    // 例えば"3CGI"が入力された場合、aをAction型の変数として
+    //   a.from_stock = GI, a.to_x = 2, a.to_y = 2, a.turn_over = 0
+    // となる。なお、この場合 a.from_x, a.from_y は何でも良い。
 }
 
 void action_to_string(Action action, char return_buffer[32]) {
