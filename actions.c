@@ -234,3 +234,4 @@ int get_all_actions(Board *b, Action *all_actions){
 
     return end_index;
 }
+
