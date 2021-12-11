@@ -285,8 +285,7 @@ Board decode(Hash h) {
     return b;
 }
 
-// 名前はarray_equalよりhash_equalのほうがいいかも
-int array_equal(Hash h1, Hash h2) {
+int hash_equal(Hash h1, Hash h2) {
     // 2つのハッシュ値が等しいか否かを判定
     // 等しければ1、等しくなければ0を返す
 
@@ -312,7 +311,7 @@ int board_equal(Board *b1, Board *b2) {
     return 1;
 }
 
-int action_equal(Action *action1, Action *action2){
+int action_equal(Action *action1, Action *action2) {
     // action1とaction2の同一性を判定
     // 感覚的には return action1 == action2
     if (action1->from_stock != action2->from_stock || action1->to_x != action2->to_x || action1->to_y != action2->to_y)
@@ -320,7 +319,8 @@ int action_equal(Action *action1, Action *action2){
     else if (action1->from_stock)
         return 1;
     else
-        return action1->from_x == action2->from_x && action1->from_y == action2->from_y && action1->promotion == action2->promotion;
+        return action1->from_x == action2->from_x && action1->from_y == action2->from_y &&
+               action1->promotion == action2->promotion;
 }
 
 Action string_to_action(const char *action_string) {
