@@ -226,7 +226,8 @@ int get_all_actions(Board *b, Action *all_actions){
     // 王手放置にならない指手をall_actionsに追加する.
     int end_index = 0;
     for (int i = 0; i < len_tmp_actions; i++){
-        Board next_b = update_board(b, &tmp_actions[i]);
+        Board next_b = *b;
+        update_board(&next_b, tmp_actions[i]);
         if (is_checked(&next_b) == 0)
             // 王手放置でないとき
             all_actions[end_index++] = tmp_actions[i];
