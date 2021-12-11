@@ -7,31 +7,15 @@
 /*************************
  * 未定義の関数群
  * これから分担して実装する
- *   - is_threefold_repetition
  *   - stop_watch
- *   - move_piece
  *   - get_ai_action
  *************************/
 
 // debug_print関数を積極的に利用し、随所にエラーメッセージを散りばめること！
 
-void is_threefold_repetition(Board *b, Action action, int first_mover) {
-    // 千日手の判定をし、千日手の場合は後手勝ちにする
-    // ただし、後手が連続王手千日手をした場合は先手勝ちにする
-}
-
 void stop_watch(void (*func)()) {
     // AIの思考時間が9.9秒以内であることを確認する
     // とりあえず引数は関数ポインタにしておきましたが、自由に変更して下さい
-}
-
-
-void move_piece(Board *b, Action action) {
-    // actionで示される行動をもとに、盤面bを変更する
-    // actionは b->next_player で表されるプレイヤーの行動である
-    // この関数内で、種々のエラーチェックを行うが、エラー毎にdebug_printを徹底すること！
-    // 恐らくこの関数を書くのは大変 (課題のサイトの「反則手をさした場合」の項を参照)
-    // さらに細分化する余地がありそう
 }
 
 Action get_ai_action(Board *b, int turn) {
@@ -91,15 +75,31 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    int first_mover = (first_is_user) ? USER : AI;
+
     // 初期化済みの盤面を作る
-    Board board = create_board(first_is_user ? USER : AI);
+    Board board = create_board(first_mover);
     print_board_for_debug(&board);
+
+    // 盤面の履歴を保持する配列を宣言し、初期化する
+    Board history[MAX_TURN] = {};
+    int history_index = 0;
+    memcpy(&history[history_index++], &board, sizeof(Board));
 
     // ゲームのループをまわし、勝者を決める
     int winner = 0;
     for (int turn = 1; turn <= MAX_TURN; ++turn) {  // 150手以内
         Action action;
+        int current_player = (first_is_user + turn) % 2 ? AI : USER;
 
+        // まず、詰みかどうかをチェックする (ステイルメイトは除外)
+        if (is_checkmate(&board) && is_checked(&board)) {
+            debug_print("checkmate.");
+            winner = current_player * (-1);
+            break;
+        }
+
+        // 次の行動を取ってくる (合法手がなくても指さなければならない事に注意)
         if (turn % 2) {  // 奇数手番, 盤面の逆転なし
             if (first_is_user) {
                 action = get_user_action(turn);
@@ -116,14 +116,31 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        move_piece(&board, action);
-        print_board_for_debug(&board);
-
-        if (is_checkmate(&board)) {  // 勝敗が付いているかのチェック
-            winner = (first_is_user + turn) % 2 ? USER : AI;
+        // 取ってきた行動が合法手か？ (千日手を除く)
+        if (!is_possible_action(&board, action)) {
+            debug_print("the specified action is not legal.");
+            winner = current_player * (-1);
             break;
         }
 
+        // 実際に駒を動かす
+        update_board(&board, action);
+        print_board_for_debug(&board);
+
+        // 千日手のチェック
+        int three_fold_repetition = is_threefold_repetition(history, history_index, &board);
+        if (three_fold_repetition == 1) {
+            debug_print("three fold repetition has occurred.");
+            winner = (first_is_user) ? AI : USER;
+            break;
+        } else if (three_fold_repetition == -1) {
+            debug_print("three fold repetition (with continuous checks) has occurred.");
+            winner = current_player * (-1);
+            break;
+        }
+
+        // 盤面を履歴に追加し、180°回転させる
+        memcpy(&history[history_index++], &board, sizeof(Board));
         reverse_board(&board);
     }
 
