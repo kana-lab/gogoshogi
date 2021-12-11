@@ -47,10 +47,8 @@ void update_board(Board *b, Action action) {
     // インデックスの範囲のチェックぐらいはするかも
 }
 
-void reverse_action(const char *action_string, char return_buffer[32]) {
-    // action_stringは「グループ課題: 2回目」のページで指定されている、駒の動きを表す文字列
-    // 盤面を180°回転させた時の新たな動きの文字列を、return_bufferに入れる
-    // 文字列の最後には番兵として(数字の)0を入れること！
+void reverse_action(Action *action) {
+    // actionの表す動きを、盤面を180°回転させた時の新たな動きに変更する
 }
 
 
