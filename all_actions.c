@@ -37,7 +37,7 @@ void print_piece_moves(void){
 }
 
 
-int get_all_actions(const Board b, Action *all_actions){
+int get_move_actions(const Board b, Action *all_actions){
     int all_actions_index = 0;
 
     // 盤面上の駒を動かす手を列挙
@@ -51,14 +51,18 @@ int get_all_actions(const Board b, Action *all_actions){
             if (piece != KAKU && piece != HISHA){
                 // 駒が角や飛ではないときに, 周囲に動く手を列挙する
                 for (int k = 0; k < move_length[piece]; k++){
-                    Action action;
-                    action.from_stock = 0;
-                    action.from_x = i;
-                    action.from_y = j;
-                    action.to_x = i + move_matrix_x[piece][k];
-                    action.to_y = j + move_matrix_y[piece][k];
-                    action.turn_over = 0; // 暫定的に駒は成らないものとする
-                    all_actions[all_actions_index++] = action;
+                    int x = i + move_matrix_x[piece][k];
+                    int y = j + move_matrix_y[piece][k];
+                    if (0 <= x && x < 5 && 0 <= y && y < 5 && b.board[x][y] <= 0){
+                        Action action;
+                        action.from_stock = 0;
+                        action.from_x = i;
+                        action.from_y = j;
+                        action.to_x = x;
+                        action.to_y = y;
+                        action.turn_over = 0; // 暫定的に駒は成らないものとする
+                        all_actions[all_actions_index++] = action;
+                    }
                 }
             }
             if (piece % NARI == KAKU || piece & NARI == HISHA){
