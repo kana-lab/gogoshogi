@@ -82,7 +82,7 @@ void print_board_for_debug(Board *b) {
 
 #ifdef DEBUG_MODE
     static const char *piece_ch[] = {
-        "　",
+        "..",
         "歩", "角", "飛", "銀", "金", "王",
         "と", "馬", "龍", "全"
     };
