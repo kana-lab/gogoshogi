@@ -234,3 +234,28 @@ int get_all_actions(Board *b, Action *all_actions){
 
     return end_index;
 }
+
+
+int get_number_of_moves(Board *b){
+    // 手番側の可能な指手の個数を返す.
+    Action all_actions[LEN_ACTIONS];
+    return get_all_actions(b, all_actions);
+}
+
+
+int is_checkmate(Board *b){
+    // 詰みなら1, 詰みでないなら0を返す.
+    return get_number_of_moves(b) == 0;
+}
+
+
+int is_possible_actions(Board *b, Action *action){
+    // actionが正当なら1, 不当なら0を返す.
+    Action all_actions[LEN_ACTIONS];
+    int len_all_actions = get_all_actions(b, all_actions);
+    for (int i = 0; i < len_all_actions; i++){
+        if (action_equal(action, &all_actions[i]))
+            return 1;
+    }
+    return 0;
+}
