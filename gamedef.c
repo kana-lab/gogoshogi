@@ -82,9 +82,9 @@ void print_board_for_debug(Board *b) {
 
 #ifdef DEBUG_MODE
     static const char *piece_ch[] = {
-        "　",
-        "歩", "角", "飛", "銀", "金", "王",
-        "と", "馬", "龍", "全"
+            "　",
+            "歩", "角", "飛", "銀", "金", "王",
+            "と", "馬", "龍", "全"
     };
 
     // 盤面のプリント
@@ -108,18 +108,18 @@ void print_board_for_debug(Board *b) {
 
     // ユーザーの持ち駒のプリント
     puts("");
-    printf("user: ");
-    for (int piece = 0; piece < 7; ++piece) {
-        int count = b->user_stock[piece];
+    printf("me      : ");
+    for (int piece = 0; piece < 6; ++piece) {
+        int count = b->next_stock[piece];
         for (int i = 0; i < count; ++i)
             printf("%s", piece_ch[piece]);
     }
 
     // AIの持ち駒のプリント
     puts("");
-    printf("ai  : ");
-    for (int piece = 0; piece < 7; ++piece) {
-        int count = b->ai_stock[piece];
+    printf("opponent: ");
+    for (int piece = 0; piece < 6; ++piece) {
+        int count = b->previous_stock[piece];
         for (int i = 0; i < count; ++i)
             printf("%s", piece_ch[piece]);
     }
@@ -148,6 +148,8 @@ void abort_game(int loser) {
 
 Hash encode(Board *b) {
     // 盤面bを96bitのハッシュに潰す
+    // 駒は2枚×6種であり、各種別ごとに2byteのフィールドを与える (計96bit)
+    // 2byteは値の小さい順にソートし、一意性を確保する
 }
 
 Board decode(Hash h) {
