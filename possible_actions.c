@@ -144,17 +144,42 @@ int add_promotions(Board *b, Action *actions, int start_index, int end_index){
 }
 
 
+int get_piece_position(Board *b, int *x, int *y, int piece){
+    /*
+    pieceを1つ見つけて, その位置を*xと*yに代入する.
+    pieceがない場合にはxもyも変えない.
+    */
+    for (int i = 0; i < 5; i++){
+        for (int j = 0; j < 5; j++){
+            if (b->board[i][j] == piece){
+                *x = i;
+                *y = j;
+                return 0;
+            }
+        }
+    }
+    if (piece == OU || piece == -OU)
+        print_debug("error: get_piece_position: The king does not exist.");
+    return -1;
+}
+
+
 int add_drop_actions(Board *b, Action *actions, int end_index){
     /*
     駒を打つ指手をactionsに追加する.
     返り値 = end_index + 追加した指手の個数
     */
+    int x = -1, y = -1;
+    if (b->next_stock[FU] == 1)
+        // 歩を打てるときに自分の負を探す.
+        get_piece_position(b, &x, &y, FU);
+    
     for (int i = 0; i < 5; i++){
         for (int j = 0; j < 5; j++){
             if (b->board[i][j] == EMPTY){
                 int min_k;
-                if (i == TOP)
-                    // 敵陣には歩を打てない.
+                if (i == TOP || j == y)
+                    // 敵陣や自分の歩がある列には歩を打てない.
                     min_k = 2;
                 else
                     min_k = 1;
@@ -168,25 +193,6 @@ int add_drop_actions(Board *b, Action *actions, int end_index){
         }
     }
     return end_index;
-}
-
-
-int get_piece_position(Board *b, int *x, int *y, int piece){
-    /*
-    pieceを1つ見つけて, その位置を*xと*yに代入する.
-    基本的には piece = OU,-OU の形で使用する.
-    */
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 5; j++){
-            if (b->board[i][j] == piece){
-                *x = i;
-                *y = j;
-                return 0;
-            }
-        }
-    }
-    debug_print("error: get_piece_position: The piece does not exist.");
-    return -1;
 }
 
 
@@ -211,13 +217,13 @@ int is_checking(Board *b){
 
 
 // reverse_boardを使用
-int is_checked(Board b){
+int is_checked(Board *b){
     /*
     手番側が王手されているかを判定する.
-    呼び出し側のbを編集しないために引数の型をBoardにした.
+    引数のbを直接編集することに注意する.
     */
-    reverse_board(&b);
-    return is_checking(&b);
+    reverse_board(b);
+    return is_checking(b);
 }
 
 
@@ -237,7 +243,7 @@ int get_all_actions(Board *b, Action *all_actions){
     for (int i = 0; i < len_tmp_actions; i++){
         Board next_b = *b;
         update_board(&next_b, tmp_actions[i]);
-        if (is_checked(next_b) == 0)
+        if (is_checked(&next_b) == 0)
             // 王手放置でないとき
             all_actions[end_index++] = tmp_actions[i];
     }
@@ -259,7 +265,7 @@ int is_checkmate(Board *b){
 }
 
 
-int is_possible_action(Board *b, Action *action){
+int is_possible_actions(Board *b, Action *action){
     // actionが正当なら1, 不当なら0を返す.
     Action all_actions[LEN_ACTIONS];
     int len_all_actions = get_all_actions(b, all_actions);
