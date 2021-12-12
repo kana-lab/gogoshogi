@@ -102,6 +102,9 @@ int add_move_actions(Board *b, Action *actions, int end_index){
                         actions[end_index++] = action;
                         x += move_matrix_x[piece%NARI][k];
                         y += move_matrix_y[piece%NARI][k];
+                        if (b->board[x][y] < 0)
+                            // 相手の駒を取ったとき
+                            break;
                     }
                 }
             }
@@ -171,7 +174,7 @@ int get_piece_position(Board *b, int *x, int *y, int piece){
     */
     for (int i = 0; i < 5; i++){
         for (int j = 0; j < 5; j++){
-            if (b->board[i][j] == -OU){
+            if (b->board[i][j] == piece){
                 *x = i;
                 *y = j;
                 return 0;
