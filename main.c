@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     // 盤面の履歴を保持する配列を宣言し、初期化する
     Board history[MAX_TURN] = {};
     int history_index = 0;
-    memcpy(&history[history_index++], &board, sizeof(Board));
+    history[history_index++] = board;
 
     // ゲームのループをまわし、勝者を決める
     int winner = 0;
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
         }
 
         // 盤面を履歴に追加し、180°回転させる
-        memcpy(&history[history_index++], &board, sizeof(Board));
+        history[history_index++] = board;
         reverse_board(&board);
     }
 
