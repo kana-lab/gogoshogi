@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
         int current_player = (first_is_user + turn) % 2 ? AI : USER;
 
         // まず、詰みかどうかをチェックする (ステイルメイトは除外)
-        if (is_checkmate(&board) && is_checked(&board)) {
+        if (is_checkmate(&board) && is_checked(board)) {
             debug_print("checkmate.");
             winner = current_player * (-1);
             break;
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
         }
 
         // 取ってきた行動が合法手か？ (千日手を除く)
-        if (!is_possible_action(&board, action)) {
+        if (!is_possible_action(&board, &action)) {
             debug_print("the specified action is not legal.");
             winner = current_player * (-1);
             break;
