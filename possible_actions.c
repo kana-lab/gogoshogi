@@ -1,3 +1,7 @@
+#ifndef POSSIBLE_ACTIONS
+#define POSSIBLE_ACTIONS
+
+
 #include "gamedef.c"
 
 #define TOP 0           // 駒が成れるx座標
@@ -181,7 +185,7 @@ int get_piece_position(Board *b, int *x, int *y, int piece){
             }
         }
     }
-    print_debug("error: get_piece_position: The piece does not exist.");
+    debug_print("error: get_piece_position: The piece does not exist.");
     return -1;
 }
 
@@ -255,7 +259,7 @@ int is_checkmate(Board *b){
 }
 
 
-int is_possible_actions(Board *b, Action *action){
+int is_possible_action(Board *b, Action *action){
     // actionが正当なら1, 不当なら0を返す.
     Action all_actions[LEN_ACTIONS];
     int len_all_actions = get_all_actions(b, all_actions);
@@ -265,3 +269,6 @@ int is_possible_actions(Board *b, Action *action){
     }
     return 0;
 }
+
+
+#endif  /* POSSIBLE_ACTIONS */
