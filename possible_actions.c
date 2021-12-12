@@ -86,7 +86,7 @@ int add_move_actions(Board *b, Action *actions, int end_index){
                 for (int k = 0; k < move_length[piece]; k++){
                     int x = i + move_matrix_x[piece][k];
                     int y = j + move_matrix_y[piece][k];
-                    if (0 <= x && x < 5 && 0 <= y && y < 5 && b->board[x][y] <= 0){
+                    if (0 <= x && x < 5 && 0 <= y && y < 5 && b->board[x][y] <= EMPTY){
                         Action action = {0, i, j, x, y, 0};
                         actions[end_index++] = action;
                     }
@@ -97,12 +97,12 @@ int add_move_actions(Board *b, Action *actions, int end_index){
                 for (int k = 0; k < move_length[piece%NARI]; k++){
                     int x = i + move_matrix_x[piece%NARI][k];
                     int y = j + move_matrix_y[piece%NARI][k];
-                    while (0 <= x && x < 5 && 0 <= y && y < 5 && b->board[x][y] <= 0){
+                    while (0 <= x && x < 5 && 0 <= y && y < 5 && b->board[x][y] <= EMPTY){
                         Action action = {0, i, j, x, y, 0};
                         actions[end_index++] = action;
                         x += move_matrix_x[piece%NARI][k];
                         y += move_matrix_y[piece%NARI][k];
-                        if (b->board[x][y] < 0)
+                        if (b->board[x][y] < EMPTY)
                             // 相手の駒を取ったとき
                             break;
                     }
