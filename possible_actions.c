@@ -207,9 +207,13 @@ int is_checking(Board *b){
 
 
 // reverse_boardを使用
-int is_checked(Board *b){
-    // 手番側が王手されているかを判定する.
-    return is_checking(reverse_board(b));
+int is_checked(Board b){
+    /*
+    手番側が王手されているかを判定する.
+    呼び出し側のbを編集しないために引数の型をBoardにした.
+    */
+    reverse_board(&b);
+    return is_checking(&b);
 }
 
 
@@ -229,7 +233,7 @@ int get_all_actions(Board *b, Action *all_actions){
     for (int i = 0; i < len_tmp_actions; i++){
         Board next_b = *b;
         update_board(&next_b, tmp_actions[i]);
-        if (is_checked(&next_b) == 0)
+        if (is_checked(next_b) == 0)
             // 王手放置でないとき
             all_actions[end_index++] = tmp_actions[i];
     }
