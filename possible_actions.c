@@ -5,7 +5,7 @@
 #include "gamedef.c"
 
 #define TOP 0           // 駒が成れるx座標
-#define LEN_ACTIONS 300 // 選択可能な指手の個数の最大値
+#define LEN_ACTIONS 250 // 選択可能な指手の個数の最大値
 
 
 int move_matrix_x[MAX_PIECE_NUMBER+1][8] = {
@@ -159,14 +159,17 @@ int get_piece_position(Board *b, int *x, int *y, int piece){
         }
     }
     if (piece == OU || piece == -OU)
+        // 王がないということはあり得ない.
         print_debug("error: get_piece_position: The king does not exist.");
     return -1;
 }
 
 
+// update_board, reverse_boardを使用
 int add_drop_actions(Board *b, Action *actions, int end_index){
     /*
     駒を打つ指手をactionsに追加する.
+    歩を最上段に打てないこと, 二歩, 打ち歩詰めに注意する.
     返り値 = end_index + 追加した指手の個数
     */
     int x = -1, y = -1;
@@ -179,13 +182,22 @@ int add_drop_actions(Board *b, Action *actions, int end_index){
             if (b->board[i][j] == EMPTY){
                 int min_k;
                 if (i == TOP || j == y)
-                    // 敵陣や自分の歩がある列には歩を打てない.
+                    // 最上段や自分の歩がある列には歩を打てない.
                     min_k = 2;
                 else
                     min_k = 1;
                 for (int k = min_k; k < 6; k++){
                     if (b->next_stock[k]){
                         Action action = {k, -1, -1, i, j};
+                        if (k == FU && b->board[i+move_matrix_x[FU][0]][j+move_matrix_y[FU][0]] == -OU){
+                            // 歩で王手するとき
+                            Board next_b = *b;
+                            update_board(&next_b, action);
+                            reverse_board(&next_b);
+                            if (is_checkmate(&next_b))
+                                // 打ち歩詰めのとき
+                                continue;
+                        }
                         actions[end_index++] = action;
                     }
                 }
