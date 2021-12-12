@@ -175,11 +175,9 @@ Hash encode(Board *b) {
             int piece = b->board[i][j];
 
             if (piece != EMPTY) {
-                int kind_of_piece = abs(piece);
-                if (kind_of_piece > NARI)
-                    kind_of_piece -= NARI;
-
+                int kind_of_piece = abs(piece) % NARI;
                 HashField *hf = &field[kind_of_piece - 1][0];
+
                 if (hf->is_enabled)
                     ++hf;
 
@@ -367,11 +365,9 @@ void update_board(Board *b, Action action) {
         int piece = b->board[action.from_x][action.from_y];
         b->board[action.from_x][action.from_y] = EMPTY;  // 移動元を空にする
 
-        int gain = abs(b->board[action.to_x][action.to_y]);
-        if (gain != EMPTY) {  // 移動先に相手の駒がある場合、それを持ち駒に加える
-            gain = (gain > NARI) ? gain - NARI : gain;
-            ++b->next_stock[gain];
-        }
+        int gain = b->board[action.to_x][action.to_y];
+        if (gain != EMPTY)  // 移動先に相手の駒がある場合、それを持ち駒に加える
+            ++b->next_stock[abs(gain) % NARI];
 
         b->board[action.to_x][action.to_y] = piece;  // 駒を移動先に持っていく
     }
