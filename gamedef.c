@@ -31,8 +31,8 @@
 
 typedef struct {            // 盤面を(持ち駒とセットで)入れておく構造体
     int board[5][5];        // 盤面
-    int next_stock[6];      // ユーザーの持ち駒
-    int previous_stock[6];  // AIの持ち駒
+    int next_stock[6];      // 手番側の持ち駒
+    int previous_stock[6];  // 手番ではない方の持ち駒
 } Board;
 
 typedef struct {     // 駒の移動を表す構造体
