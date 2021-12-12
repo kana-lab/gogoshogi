@@ -61,6 +61,10 @@ typedef struct {               // 96bitのハッシュを入れる構造体
  *   - board_equal
  *   - string_to_action
  *   - action_to_string
+ *   - create_board
+ *   - reverse_board
+ *   - reverse_action
+ *   - update_board
  *****************************/
 
 void debug_print(const char *msg, ...) {
@@ -335,6 +339,42 @@ void action_to_string(Action action, char return_buffer[32]) {
     // actionの表す駒の動きを、「グループ課題: 2回目」のページで指定されているフォーマットに
     // 従った文字列に翻訳し、return_bufferに入れる
     // 文字列の最後には番兵として(数字の)0を入れること！
+}
+
+Board create_board(int first_mover) {
+    // Board型の盤面を作って初期化し、それを戻り値として返す
+    // first_mover引数は先手を表し、USER か AI のいずれかである
+}
+
+void reverse_board(Board *b) {
+    // 盤面を反転させる
+    // b.board[5][5]の全要素に-1を掛けて180°回転する
+}
+
+void reverse_action(Action *action) {
+    // actionの表す動きを、盤面を180°回転させた時の新たな動きに変更する
+}
+
+void update_board(Board *b, Action action) {
+    // 駒を動かして盤面を更新する
+    // 一切の反則手のチェックをしないので注意！
+    // インデックスの範囲のチェックぐらいはするかも (しない)
+
+    if (action.from_stock) {  // 持ち駒を打つ場合
+        b->board[action.to_x][action.to_y] = action.from_stock;
+        --b->next_stock[action.from_stock];
+    } else {  // 駒を動かす場合
+        int piece = b->board[action.from_x][action.from_y];
+        b->board[action.from_x][action.from_y] = EMPTY;  // 移動元を空にする
+
+        int gain = abs(b->board[action.to_x][action.to_y]);
+        if (gain != EMPTY) {  // 移動先に相手の駒がある場合、それを持ち駒に加える
+            gain = (gain > NARI) ? gain - NARI : gain;
+            ++b->next_stock[gain];
+        }
+
+        b->board[action.to_x][action.to_y] = piece;  // 駒を移動先に持っていく
+    }
 }
 
 
