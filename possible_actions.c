@@ -8,6 +8,38 @@
 #define LEN_ACTIONS 250 // 選択可能な指手の個数の最大値
 
 
+/*
+可能な指手を全て列挙するget_all_actionsおよび, それに関する関数を定義した.
+
+get_all_actionsの流れ
+・add_move_actionsで盤面上の駒を動かす指手を列挙する.
+    ・この際, 特殊な反則手については考えない.
+・add_promotionsで駒が成る指手を列挙する.
+    ・歩が成れるときに必ず成るようにする.
+・add_drop_actionsで持ち駒を打つ指手を列挙する.
+    ・二歩を打てないようにする.
+    ・歩を最上段に打てないようにする.
+・盤面を更新した後に自分が王手される指手を削除する.
+・打ち歩詰めの指手を削除する.
+*/
+
+
+/************************************
+ * 定義済み関数一覧
+ *   - print_piece_moves
+ *   - add_move_actions
+ *   - add_promotions
+ *   - get_piece_position
+ *   - add_drop_actions
+ *   - is_checking
+ *   - is_checked
+ *   - get_all_actions
+ *   - get_number_of_moves
+ *   - is_checkmate
+ *   - is_possible_actions
+ ************************************/
+
+
 int move_matrix_x[MAX_PIECE_NUMBER+1][8] = {
     {},                   // EMPTY
     {-1},                 // 歩
@@ -123,10 +155,12 @@ int add_promotions(Board *b, Action *actions, int start_index, int end_index){
     駒が成る指手をactionsに追加する.
     start_index <= i < end_index を満たすiについて,
     actions[i].promotion = 1 とした手を追加する.
+    歩が成れるときに必ず成ることに注意する.
     返り値 = end_index + 追加した指手の個数
     */
     int old_end_index = end_index;
     for (int i = start_index; i < old_end_index; i++){
+        assert(actions[i].from_stock == 0);
         assert(actions[i].promotion == 0);
         int piece = b->board[actions[i].from_x][actions[i].from_y];
         if (piece <= GIN && (actions[i].to_x == TOP || actions[i].from_x == TOP)){
@@ -159,7 +193,7 @@ int get_piece_position(Board *b, int *x, int *y, int piece){
         }
     }
     if (piece == OU || piece == -OU)
-        // 王がないということはあり得ない.
+        // 王がないとき.
         debug_print("error: get_piece_position: The king does not exist.");
     return -1;
 }
@@ -168,7 +202,7 @@ int get_piece_position(Board *b, int *x, int *y, int piece){
 // update_board, reverse_boardを使用
 int add_drop_actions(Board *b, Action *actions, int end_index){
     /*
-    駒を打つ指手をactionsに追加する.
+    持ち駒を打つ指手をactionsに追加する.
     歩を最上段に打てないこと, 二歩に注意する.
     ここでは打ち歩詰めについては考えない.
     返り値 = end_index + 追加した指手の個数
@@ -254,7 +288,7 @@ int get_all_actions(Board *b, Action *all_actions){
             // 王手放置のとき
             continue;
         if (tmp_actions[i].from_stock == FU && b->board[tmp_actions[i].to_x+move_matrix_x[FU][0]][tmp_actions[i].to_y+move_matrix_y[FU][0]] == -OU){
-            // 歩で王手するとき
+            // 歩を打って王手するとき
             Board next_b = *b;
             update_board(&next_b, tmp_actions[i]);
             reverse_board(&next_b);
