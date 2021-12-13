@@ -7,6 +7,9 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <math.h>
+#include <time.h>
+#include <unistd.h>
 
 #define DEBUG_MODE  // デバッグ時以外はコメントアウトすること！
 
@@ -59,6 +62,7 @@ typedef struct {               // 96bitのハッシュを入れる構造体
  *   - decode
  *   - array_equal
  *   - board_equal
+ *   - action_equal
  *   - string_to_action
  *   - action_to_string
  *   - create_board
@@ -371,6 +375,21 @@ void update_board(Board *b, Action action) {
 
         b->board[action.to_x][action.to_y] = piece;  // 駒を移動先に持っていく
     }
+}
+
+double stop_watch(struct timespec start_time, struct timespec end_time){
+    // 経過時間を秒単位で返す.
+    /* 使用例
+    struct timespec start_time, end_time;
+    clock_gettime(CLOCK_REALTIME, &start_time);
+    // 2秒間処理を止める.
+    sleep(2);
+    clock_gettime(CLOCK_REALTIME, &end_time);
+    printf("%lf\n", stop_watch(start_time, end_time));
+    */
+    long int sec = end_time.tv_sec - start_time.tv_sec;
+    long int nsec = end_time.tv_nsec - start_time.tv_nsec;
+    return (double)sec + (double)nsec/pow(10,9);
 }
 
 
