@@ -37,6 +37,8 @@ get_all_actionsの流れ
  *   - get_number_of_moves
  *   - is_checkmate
  *   - is_possible_actions
+ *   - is_useful
+ *   - get_useful_actions
  ************************************/
 
 
@@ -104,7 +106,7 @@ void print_piece_moves(void){
 }
 
 
-int add_move_actions(Board *b, Action *actions, int end_index){
+int add_move_actions(Board *b, Action actions[LEN_ACTIONS], int end_index){
     /*
     盤面上の駒を動かす指手をactionsに追加する.
     actions[end_index]から順に, Action型の指手を代入する.
@@ -150,7 +152,7 @@ int add_move_actions(Board *b, Action *actions, int end_index){
 }
 
 
-int add_promotions(Board *b, Action *actions, int start_index, int end_index){
+int add_promotions(Board *b, Action actions[LEN_ACTIONS], int start_index, int end_index){
     /*
     駒が成る指手をactionsに追加する.
     start_index <= i < end_index を満たすiについて,
@@ -200,7 +202,7 @@ int get_piece_position(Board *b, int *x, int *y, int piece){
 
 
 // update_board, reverse_boardを使用
-int add_drop_actions(Board *b, Action *actions, int end_index){
+int add_drop_actions(Board *b, Action actions[LEN_ACTIONS], int end_index){
     /*
     持ち駒を打つ指手をactionsに追加する.
     歩を最上段に打てないこと, 二歩に注意する.
@@ -266,7 +268,7 @@ int is_checked(Board *b){
 
 
 // update_boardを使用
-int get_all_actions(Board *b, Action *all_actions){
+int get_all_actions(Board *b, Action all_actions[LEN_ACTIONS]){
     /*
     選択可能な指手を全列挙する.
     王手放置や打ち歩詰めに注意する.
@@ -326,6 +328,43 @@ int is_possible_actions(Board *b, Action *action){
             return 1;
     }
     return 0;
+}
+
+
+int is_useful(Board *b, Action *action){
+    /*
+    actionが有用かどうかを簡単に判定する.
+    飛や角が成れるのに成らない指手のみに対し0を返す.
+    */
+    if (action->from_stock || action->promotion == 1)
+        // 持ち駒を打つときや駒が成るとき
+        return 1;
+    if (b->board[action->from_x][action->from_y] == HISHA || b->board[action->from_x][action->from_y] == KAKU){
+        // 飛や角を動かすとき
+        if (action->from_x == TOP || action->to_x == TOP)
+            // 駒が成れるとき
+            return 0;
+    }
+    // それ以外のとき
+    return 1;
+}
+
+
+int get_useful_actions(Board *b, Action actions[LEN_ACTIONS]){
+    // 有用な指手を列挙する.
+
+    // 選択可能な指手を全て列挙する.
+    Action all_actions[LEN_ACTIONS];
+    int len_all_actions = get_all_actions(b, all_actions);
+
+    // 有用な指手のみをactionsに代入する.
+    int end_index = 0;
+    for (int i = 0; i < len_all_actions; i++){
+        if (is_useful(b, &all_actions[i]))
+            actions[end_index++] = all_actions[i];
+    }
+
+    return end_index;
 }
 
 
