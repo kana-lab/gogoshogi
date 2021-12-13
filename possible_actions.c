@@ -14,12 +14,12 @@
 get_all_actionsの流れ
 ・add_move_actionsで盤面上の駒を動かす指手を列挙する.
     ・この際, 特殊な反則手については考えない.
-・add_promotionsで駒が成る指手を列挙する.
+・add_promotionsで駒が成る指手を追加する.
     ・歩が成れるときに必ず成るようにする.
-・add_drop_actionsで持ち駒を打つ指手を列挙する.
+・add_drop_actionsで持ち駒を打つ指手を追加する.
     ・二歩を打てないようにする.
     ・歩を最上段に打てないようにする.
-・盤面を更新した後に自分が王手される指手を削除する.
+・盤面を更新した後に自分が王手されている指手を削除する.
 ・打ち歩詰めの指手を削除する.
 */
 
@@ -315,6 +315,7 @@ int get_number_of_moves(Board *b){
 
 int is_checkmate(Board *b){
     // 詰みなら1, 詰みでないなら0を返す.
+    // 手番側に可能な指手があるかどうかを探す.
     return get_number_of_moves(b) == 0;
 }
 
@@ -350,14 +351,31 @@ int is_useful(Board *b, Action *action){
 }
 
 
+// update_boardとreverse_boardを使用
 int get_useful_actions(Board *b, Action actions[LEN_ACTIONS]){
-    // 有用な指手を列挙する.
+    /*
+    有用な指手を列挙する.
+    相手の王を詰ませられるときは, その1手を代入する.
+    そうでないときは, ごく一部の無駄な指手だけを除いて, ほぼ全ての指手を列挙する.
+    */
 
     // 選択可能な指手を全て列挙する.
     Action all_actions[LEN_ACTIONS];
     int len_all_actions = get_all_actions(b, all_actions);
 
-    // 有用な指手のみをactionsに代入する.
+    // 相手の王を詰ませられるかを判定する.
+    for (int i = 0; i < len_all_actions; i++){
+        Board next_b = *b;
+        update_board(&next_b, all_actions[i]);
+        reverse_board(&next_b);
+        if (is_checkmate(&next_b)){
+            // all_actions[i]を行うと相手の王が詰むとき
+            actions[0] = all_actions[i];
+            return 1;
+        }
+    }
+
+    // ほぼ明らかに無駄な指手以外を列挙する.
     int end_index = 0;
     for (int i = 0; i < len_all_actions; i++){
         if (is_useful(b, &all_actions[i]))
