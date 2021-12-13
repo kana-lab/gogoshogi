@@ -317,7 +317,7 @@ int board_equal(Board *b1, Board *b2) {
     return 1;
 }
 
-int action_equal(Action *action1, Action *action2) {
+int action_equal(const Action *action1, const Action *action2) {
     // action1とaction2の同一性を判定
     // 感覚的には return action1 == action2
     if (action1->from_stock != action2->from_stock || action1->to_x != action2->to_x || action1->to_y != action2->to_y)
