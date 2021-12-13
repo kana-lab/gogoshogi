@@ -160,7 +160,7 @@ int get_piece_position(Board *b, int *x, int *y, int piece){
     }
     if (piece == OU || piece == -OU)
         // 王がないということはあり得ない.
-        print_debug("error: get_piece_position: The king does not exist.");
+        debug_print("error: get_piece_position: The king does not exist.");
     return -1;
 }
 
@@ -169,7 +169,8 @@ int get_piece_position(Board *b, int *x, int *y, int piece){
 int add_drop_actions(Board *b, Action *actions, int end_index){
     /*
     駒を打つ指手をactionsに追加する.
-    歩を最上段に打てないこと, 二歩, 打ち歩詰めに注意する.
+    歩を最上段に打てないこと, 二歩に注意する.
+    ここでは打ち歩詰めについては考えない.
     返り値 = end_index + 追加した指手の個数
     */
     int x = -1, y = -1;
@@ -189,15 +190,6 @@ int add_drop_actions(Board *b, Action *actions, int end_index){
                 for (int k = min_k; k < 6; k++){
                     if (b->next_stock[k]){
                         Action action = {k, -1, -1, i, j};
-                        if (k == FU && b->board[i+move_matrix_x[FU][0]][j+move_matrix_y[FU][0]] == -OU){
-                            // 歩で王手するとき
-                            Board next_b = *b;
-                            update_board(&next_b, action);
-                            reverse_board(&next_b);
-                            if (is_checkmate(&next_b))
-                                // 打ち歩詰めのとき
-                                continue;
-                        }
                         actions[end_index++] = action;
                     }
                 }
@@ -241,7 +233,10 @@ int is_checked(Board *b){
 
 // update_boardを使用
 int get_all_actions(Board *b, Action *all_actions){
-    // 選択可能な指手を全列挙する.
+    /*
+    選択可能な指手を全列挙する.
+    王手放置や打ち歩詰めに注意する.
+    */
 
     // 選択可能な指手の候補を全列挙する.
     Action tmp_actions[LEN_ACTIONS];
@@ -250,14 +245,25 @@ int get_all_actions(Board *b, Action *all_actions){
     len_tmp_actions = add_promotions(b, tmp_actions, 0, len_tmp_actions);
     len_tmp_actions = add_drop_actions(b, tmp_actions, len_tmp_actions);
 
-    // 王手放置にならない指手をall_actionsに追加する.
+    // 王手放置や打ち歩詰めにならない指手をall_actionsに追加する.
     int end_index = 0;
     for (int i = 0; i < len_tmp_actions; i++){
         Board next_b = *b;
         update_board(&next_b, tmp_actions[i]);
-        if (is_checked(&next_b) == 0)
-            // 王手放置でないとき
-            all_actions[end_index++] = tmp_actions[i];
+        if (is_checked(&next_b))
+            // 王手放置のとき
+            continue;
+        if (tmp_actions[i].from_stock == FU && b->board[tmp_actions[i].to_x+move_matrix_x[FU][0]][tmp_actions[i].to_y+move_matrix_y[FU][0]] == -OU){
+            // 歩で王手するとき
+            Board next_b = *b;
+            update_board(&next_b, tmp_actions[i]);
+            reverse_board(&next_b);
+            Action next_actions[LEN_ACTIONS];
+            if (get_all_actions(&next_b, next_actions) == 0)
+                // 打ち歩詰めのとき
+                continue;
+        }
+        all_actions[end_index++] = tmp_actions[i];
     }
 
     return end_index;
@@ -290,3 +296,10 @@ int is_possible_actions(Board *b, Action *action){
 
 
 #endif  /* POSSIBLE_ACTIONS */
+
+/*
+int main(void){
+    print_piece_moves();
+    return 0;
+}
+*/
