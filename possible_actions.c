@@ -106,7 +106,7 @@ void print_piece_moves(void){
 }
 
 
-int add_move_actions(Board *b, Action actions[LEN_ACTIONS], int end_index){
+int add_move_actions(const Board *b, Action actions[LEN_ACTIONS], int end_index){
     /*
     盤面上の駒を動かす指手をactionsに追加する.
     actions[end_index]から順に, Action型の指手を代入する.
@@ -152,7 +152,7 @@ int add_move_actions(Board *b, Action actions[LEN_ACTIONS], int end_index){
 }
 
 
-int add_promotions(Board *b, Action actions[LEN_ACTIONS], int start_index, int end_index){
+int add_promotions(const Board *b, Action actions[LEN_ACTIONS], int start_index, int end_index){
     /*
     駒が成る指手をactionsに追加する.
     start_index <= i < end_index を満たすiについて,
@@ -180,7 +180,7 @@ int add_promotions(Board *b, Action actions[LEN_ACTIONS], int start_index, int e
 }
 
 
-int get_piece_position(Board *b, int *x, int *y, int piece){
+int get_piece_position(const Board *b, int *x, int *y, int piece){
     /*
     pieceを1つ見つけて, その位置を*xと*yに代入する.
     pieceがない場合にはxもyも変えない.
@@ -202,7 +202,7 @@ int get_piece_position(Board *b, int *x, int *y, int piece){
 
 
 // update_board, reverse_boardを使用
-int add_drop_actions(Board *b, Action actions[LEN_ACTIONS], int end_index){
+int add_drop_actions(const Board *b, Action actions[LEN_ACTIONS], int end_index){
     /*
     持ち駒を打つ指手をactionsに追加する.
     歩を最上段に打てないこと, 二歩に注意する.
@@ -236,7 +236,7 @@ int add_drop_actions(Board *b, Action actions[LEN_ACTIONS], int end_index){
 }
 
 
-int is_checking(Board *b){
+int is_checking(const Board *b){
     // 手番側が王手しているかを判定する.
 
     // 可能な駒移動の指手を列挙する.
@@ -260,7 +260,7 @@ int is_checking(Board *b){
 int is_checked(Board *b){
     /*
     手番側が王手されているかを判定する.
-    引数のbを直接編集することに注意する.
+    引数のbはconstではなく, 直接編集されることに注意する.
     */
     reverse_board(b);
     return is_checking(b);
@@ -268,7 +268,7 @@ int is_checked(Board *b){
 
 
 // update_boardを使用
-int get_all_actions(Board *b, Action all_actions[LEN_ACTIONS]){
+int get_all_actions(const Board *b, Action all_actions[LEN_ACTIONS]){
     /*
     選択可能な指手を全列挙する.
     王手放置や打ち歩詰めに注意する.
@@ -306,21 +306,21 @@ int get_all_actions(Board *b, Action all_actions[LEN_ACTIONS]){
 }
 
 
-int get_number_of_moves(Board *b){
+int get_number_of_moves(const Board *b){
     // 手番側の可能な指手の個数を返す.
     Action all_actions[LEN_ACTIONS];
     return get_all_actions(b, all_actions);
 }
 
 
-int is_checkmate(Board *b){
+int is_checkmate(const Board *b){
     // 詰みなら1, 詰みでないなら0を返す.
     // 手番側に可能な指手があるかどうかを探す.
     return get_number_of_moves(b) == 0;
 }
 
 
-int is_possible_actions(Board *b, Action *action){
+int is_possible_actions(const Board *b, const Action *action){
     // actionが正当なら1, 不当なら0を返す.
     Action all_actions[LEN_ACTIONS];
     int len_all_actions = get_all_actions(b, all_actions);
@@ -332,7 +332,7 @@ int is_possible_actions(Board *b, Action *action){
 }
 
 
-int is_useful(Board *b, Action *action){
+int is_useful(const Board *b, const Action *action){
     /*
     actionが有用かどうかを簡単に判定する.
     飛や角が成れるのに成らない指手のみに対し0を返す.
@@ -352,7 +352,7 @@ int is_useful(Board *b, Action *action){
 
 
 // update_boardとreverse_boardを使用
-int get_useful_actions(Board *b, Action actions[LEN_ACTIONS]){
+int get_useful_actions(const Board *b, Action actions[LEN_ACTIONS]){
     /*
     有用な指手を列挙する.
     相手の王を詰ませられるときは, その1手を代入する.
