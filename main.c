@@ -33,7 +33,7 @@ Action get_user_action(int turn) {
     scanf("%31s", buf);
 
     Action action;
-    if(0 != string_to_action(buf,&action)){
+    if (0 != string_to_action(buf, &action)) {
         debug_print("in get_user_action: invalid input string.");
         abort_game(USER);
     }
@@ -73,8 +73,7 @@ void print_all_actions(const Board *b, int turn) {
         action_to_string(all_actions[i], buf);
         printf("%s, ", buf);
     }
-    if (len_all_actions % 10)
-        puts("");
+    puts("");
 
     printf("------------------------------------------------------------\n");
 #endif
