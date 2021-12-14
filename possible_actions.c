@@ -138,11 +138,12 @@ int add_move_actions(const Board *b, Action actions[LEN_ACTIONS], int end_index)
                     while (0 <= x && x < 5 && 0 <= y && y < 5 && b->board[x][y] <= EMPTY){
                         Action action = {0, i, j, x, y, 0};
                         actions[end_index++] = action;
-                        x += move_matrix_x[piece%NARI][k];
-                        y += move_matrix_y[piece%NARI][k];
                         if (b->board[x][y] < EMPTY)
                             // 相手の駒を取ったとき
                             break;
+                        x += move_matrix_x[piece%NARI][k];
+                        y += move_matrix_y[piece%NARI][k];
+                        
                     }
                 }
             }
