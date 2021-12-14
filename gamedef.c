@@ -337,6 +337,7 @@ Action string_to_action(const char *action_string) {
     // となる。なお、この場合 a.from_x, a.from_y は何でも良い。
     Action action;
     if ((action_string[2] - 0 <= 53)) { //駒の移動
+        action.from_stock = EMPTY;
         action.from_x = action_string[0] - 49;
         action.from_y = action_string[1] - 65;
         action.to_x = action_string[2] - 49;
