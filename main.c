@@ -17,7 +17,7 @@ Action get_user_action(int);  // プロトタイプ宣言
 Action get_ai_action(Board *b, int turn) {
     // 盤面bを受け取って、次にAIがどう打つべきかを決定する
     // 次の行動はAction型の変数にして返す
-    return get_user_action(turn);
+    return get_user_action(turn + 1);
 }
 
 
@@ -31,7 +31,6 @@ Action get_user_action(int turn) {
     // ユーザーからの入力を受ける
     char buf[32] = {};
     scanf("%31s", buf);
-    debug_print("input string: %s", buf);
 
     Action action = string_to_action(buf);
 
@@ -52,17 +51,29 @@ void display_action(Action action, int turn) {
     puts(buf);
 }
 
-void print_all_actions(const Board *b, int turn){
+void print_all_actions(const Board *b, int turn) {
     // 可能な指手を全て出力する
 
-    printf("--- all possible actions ---\n");
+#ifdef DEBUG_MODE
+    printf("------------------- all possible actions -------------------\n");
+
+    // 全ての可能な指手をゲットする
     Action all_actions[LEN_ACTIONS];
     int len_all_actions = get_all_actions(b, all_actions);
-    for (int i = 0; i < len_all_actions; i++){
-        display_action(all_actions[i], turn);
+
+    // 良い感じに整形して表示
+    char buf[32];
+    for (int i = 0; i < len_all_actions; i++) {
+        if (i % 10 == 0 && i)
+            puts("");
+        action_to_string(all_actions[i], buf);
+        printf("%s, ", buf);
     }
-    printf("There are %d possible actions\n", len_all_actions);
-    printf("----------------------------\n");
+    if (len_all_actions % 10)
+        puts("");
+
+    printf("------------------------------------------------------------\n");
+#endif
 }
 
 int main(int argc, char *argv[]) {
@@ -90,7 +101,6 @@ int main(int argc, char *argv[]) {
 
     // 初期化済みの盤面を作る
     Board board = create_board(first_mover);
-    print_board_for_debug(&board);
 
     // 盤面の履歴を保持する配列を宣言し、初期化する
     Board history[MAX_TURN] = {};
@@ -100,10 +110,9 @@ int main(int argc, char *argv[]) {
     // ゲームのループをまわし、勝者を決める
     int winner = 0;
     for (int turn = 1; turn <= MAX_TURN; ++turn) {  // 150手以内
-
-#ifdef DEBUG_MODE
+        // デバッグプリント
+        print_board_for_debug(&board);
         print_all_actions(&board, turn);
-#endif
 
         Action action;
         int current_player = (first_is_user + turn) % 2 ? AI : USER;
@@ -132,11 +141,6 @@ int main(int argc, char *argv[]) {
             }
         }
 
-#ifdef DEBUG_MODE
-        debug_print("%d %d %d %d", action.from_x, action.from_y, action.to_x, action.to_y);
-        display_action(action, turn);
-#endif
-
         // 取ってきた行動が合法手か？ (千日手を除く)
         if (!is_possible_action(&board, &action)) {
             debug_print("the specified action is not legal.");
@@ -146,7 +150,6 @@ int main(int argc, char *argv[]) {
 
         // 実際に駒を動かす
         update_board(&board, action);
-        print_board_for_debug(&board);
 
         // 千日手のチェック
         int three_fold_repetition = is_threefold_repetition(history, history_index, &board);
