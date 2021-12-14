@@ -443,9 +443,9 @@ void reverse_board(Board *b) {
         for (int j = 0; j < 3; j++) {
             if (j == 2 && i >= 3) continue;
             else {
-            int temp = b->board[i][j];
-            b->board[i][j] = b->board[4 - i][4 - j];
-            b->board[4 - i][4 - j] = temp;
+                int temp = b->board[i][j];
+                b->board[i][j] = b->board[4 - i][4 - j];
+                b->board[4 - i][4 - j] = temp;
             }
         }
     }
@@ -480,6 +480,9 @@ void update_board(Board *b, Action action) {
         int gain = b->board[action.to_x][action.to_y];
         if (gain != EMPTY)  // 移動先に相手の駒がある場合、それを持ち駒に加える
             ++b->next_stock[abs(gain) % NARI];
+
+        if (action.promotion && piece < NARI)
+            piece += NARI;  // 駒を成る指示があれば NARI を加える
 
         b->board[action.to_x][action.to_y] = piece;  // 駒を移動先に持っていく
     }
