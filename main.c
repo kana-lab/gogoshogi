@@ -115,6 +115,7 @@ int main(int argc, char *argv[]) {
         }
 
 #ifdef DEBUG_MODE
+        debug_print("%d %d %d %d", action.from_x, action.from_y, action.to_x, action.to_y);
         display_action(action, turn);
 #endif
 
