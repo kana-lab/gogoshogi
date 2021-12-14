@@ -12,9 +12,12 @@
 
 // debug_print関数を積極的に利用し、随所にエラーメッセージを散りばめること！
 
+Action get_user_action(int);  // プロトタイプ宣言
+
 Action get_ai_action(Board *b, int turn) {
     // 盤面bを受け取って、次にAIがどう打つべきかを決定する
     // 次の行動はAction型の変数にして返す
+    return get_user_action(turn);
 }
 
 
@@ -111,7 +114,7 @@ int main(int argc, char *argv[]) {
         }
 
         // 取ってきた行動が合法手か？ (千日手を除く)
-        if (!is_possible_action(&board, &action)) {
+        if (!is_possible_actions(&board, &action)) {
             debug_print("the specified action is not legal.");
             winner = current_player * (-1);
             break;
