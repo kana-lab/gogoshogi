@@ -257,13 +257,13 @@ int is_checking(const Board *b){
 
 
 // reverse_boardを使用
-int is_checked(Board *b){
+int is_checked(Board b){
     /*
     手番側が王手されているかを判定する.
     引数のbはconstではなく, 直接編集されることに注意する.
     */
-    reverse_board(b);
-    return is_checking(b);
+    reverse_board(&b);
+    return is_checking(&b);
 }
 
 
@@ -286,7 +286,7 @@ int get_all_actions(const Board *b, Action all_actions[LEN_ACTIONS]){
     for (int i = 0; i < len_tmp_actions; i++){
         Board next_b = *b;
         update_board(&next_b, tmp_actions[i]);
-        if (is_checked(&next_b))
+        if (is_checked(next_b))
             // 王手放置のとき
             continue;
         if (tmp_actions[i].from_stock == FU && b->board[tmp_actions[i].to_x+move_matrix_x[FU][0]][tmp_actions[i].to_y+move_matrix_y[FU][0]] == -OU){
