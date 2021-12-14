@@ -439,6 +439,11 @@ void reverse_board(Board *b) {
             b->board[4-i][4-j] = temp;
         }
     }
+    for (int i = 0; i < 6; i++) {
+        int temp = b->previous_action[i];
+        b->previous_action[i] = b->next_action[i];
+        b->next_action[i] = temp;
+    
     return *b;
 }
 
