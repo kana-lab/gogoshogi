@@ -335,6 +335,25 @@ Action string_to_action(const char *action_string) {
     // 例えば"3CGI"が入力された場合、aをAction型の変数として
     //   a.from_stock = GI, a.to_x = 2, a.to_y = 2, a.turn_over = 0
     // となる。なお、この場合 a.from_x, a.from_y は何でも良い。
+    Action *action;
+    if ((action_string[2] - 0 <= 53)) { //駒の移動
+        action->from_x = action_string[0] - 48;
+        action->from_y = action_string[1] - 65;
+        action->to_x = action_string[2] - 48;
+        action->to_y = action_string[3] - 65;
+        if (action_string[5] != '\0') {
+            action->promotion = 1;
+        } else action->promotion = 0;
+    } else { // 持ち駒の配置
+        action->to_x = action_string[0] - 48;
+        action->to_y = action_string[1] - 65;
+        if (action_string[2] - 0 == 71) action->from_stock = GIN;
+        else if (action_string[2] - 0 == 72) action->from_stock = HISHA;
+        else if (action_string[2] - 0 == 70) action->from_stock = FU;
+        else if (action_string[3] - 0 == 73) action->from_stock = KIN;
+        else action->from_stock = KAKU;
+    }
+    return *action;
 }
 
 void action_to_string(Action action, char return_buffer[32]) {
@@ -351,10 +370,29 @@ Board create_board(int first_mover) {
 void reverse_board(Board *b) {
     // 盤面を反転させる
     // b.board[5][5]の全要素に-1を掛けて180°回転する
+    
+    for(int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            b->board[i][j] *= -1;
+        }
+    }
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 3; j++) {
+            int temp = b->board[i][j];
+            b->board[i][j] = b->board[4-i][4-j];
+            b->board[4-i][4-j] = temp;
+        }
+    }
+    return *b;
 }
 
 void reverse_action(Action *action) {
     // actionの表す動きを、盤面を180°回転させた時の新たな動きに変更する
+    
+    action->from_x = 4 - action->from_x;
+    action->from_y = 4 - action->from_y;
+    action->to_x = 4 - action->to_x;
+    action->to_y = 4 - action->to_y;
 }
 
 void update_board(Board *b, Action action) {
