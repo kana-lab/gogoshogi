@@ -336,22 +336,22 @@ Action string_to_action(const char *action_string) {
     //   a.from_stock = GI, a.to_x = 2, a.to_y = 2, a.turn_over = 0
     // となる。なお、この場合 a.from_x, a.from_y は何でも良い。
     Action action;
-    if ((action_string[2] - 0 <= 53)) { //駒の移動
+    if ((action_string[2] - 0 <= '5')) { //駒の移動
         action.from_stock = EMPTY;
-        action.from_x = action_string[0] - 49;
-        action.from_y = action_string[1] - 65;
-        action.to_x = action_string[2] - 49;
-        action.to_y = action_string[3] - 65;
+        action.from_x = action_string[0] - '1';
+        action.from_y = action_string[1] - 'A';
+        action.to_x = action_string[2] - '1';
+        action.to_y = action_string[3] - 'A';
         if (action_string[4] != '\0') {
             action.promotion = 1;
         } else action.promotion = 0;
     } else { // 持ち駒の配置
-        action.to_x = action_string[0] - 49;
-        action.to_y = action_string[1] - 65;
-        if (action_string[2] - 0 == 71) action.from_stock = GIN;
-        else if (action_string[2] - 0 == 72) action.from_stock = HISHA;
-        else if (action_string[2] - 0 == 70) action.from_stock = FU;
-        else if (action_string[3] - 0 == 73) action.from_stock = KIN;
+        action.to_x = action_string[0] - '1';
+        action.to_y = action_string[1] - 'A';
+        if (action_string[2] - 0 == 'G') action.from_stock = GIN;
+        else if (action_string[2] - 0 == 'H') action.from_stock = HISHA;
+        else if (action_string[2] - 0 == 'F') action.from_stock = FU;
+        else if (action_string[3] - 0 == 'I') action.from_stock = KIN;
         else action.from_stock = KAKU;
     }
     return action;
