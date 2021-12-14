@@ -360,21 +360,26 @@ void action_to_string(Action action, char return_buffer[32]) {
     // actionの表す駒の動きを、「グループ課題: 2回目」のページで指定されているフォーマットに
     // 従った文字列に翻訳し、return_bufferに入れる
     // 文字列の最後には番兵として(数字の)0を入れること！
-    
-    if (action.from_stock){
+
+    if (action.from_stock) {
         return_buffer[0] = '5' - action.to_x;
         return_buffer[1] = 'A' + action.to_y;
 
-        if (action.from_stock == FU){
-            return_buffer[2] = 'F'; return_buffer[3] = 'U';
-        } else if (action.from_stock == KAKU){
-            return_buffer[2] = 'K'; return_buffer[3] = 'K';
-        } else if (action.from_stock == HISHA){
-            return_buffer[2] = 'H'; return_buffer[3] = 'I';
-        } else if (action.from_stock == GIN){
-            return_buffer[2] = 'G'; return_buffer[3] = 'I';
-        } else if (action.from_stock == KIN){
-            return_buffer[2] = 'K'; return_buffer[3] = 'I';
+        if (action.from_stock == FU) {
+            return_buffer[2] = 'F';
+            return_buffer[3] = 'U';
+        } else if (action.from_stock == KAKU) {
+            return_buffer[2] = 'K';
+            return_buffer[3] = 'K';
+        } else if (action.from_stock == HISHA) {
+            return_buffer[2] = 'H';
+            return_buffer[3] = 'I';
+        } else if (action.from_stock == GIN) {
+            return_buffer[2] = 'G';
+            return_buffer[3] = 'I';
+        } else if (action.from_stock == KIN) {
+            return_buffer[2] = 'K';
+            return_buffer[3] = 'I';
         }
 
         return_buffer[4] = '\0';
@@ -384,8 +389,9 @@ void action_to_string(Action action, char return_buffer[32]) {
         return_buffer[1] = 'A' + action.from_y;
         return_buffer[2] = '5' - action.to_x;
         return_buffer[3] = 'A' + action.to_y;
-        if (action.promotion){
-            return_buffer[4] = 'N'; return_buffer[5] = '\0';
+        if (action.promotion) {
+            return_buffer[4] = 'N';
+            return_buffer[5] = '\0';
         } else {
             return_buffer[4] = '\0';
         }
@@ -395,11 +401,11 @@ void action_to_string(Action action, char return_buffer[32]) {
 Board create_board(int first_mover) {
     // Board型の盤面を作って初期化し、それを戻り値として返す
     // first_mover引数は先手を表し、USER か AI のいずれかである
-    
+
     Board b;
 
-    for(int i = 0; i < 5; i++){
-        for(int j = 0; j < 5; j++){
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
             b.board[i][j] = EMPTY;
         }
     }
@@ -416,7 +422,7 @@ Board create_board(int first_mover) {
     b.board[4][3] = KAKU;
     b.board[4][4] = HISHA;
 
-    for(int i = 0; i < 6; i++){
+    for (int i = 0; i < 6; i++) {
         b.next_stock[i] = b.previous_stock[i] = 0;
     }
 
@@ -426,8 +432,8 @@ Board create_board(int first_mover) {
 void reverse_board(Board *b) {
     // 盤面を反転させる
     // b.board[5][5]の全要素に-1を掛けて180°回転する
-    
-    for(int i = 0; i < 5; i++) {
+
+    for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 5; j++) {
             b->board[i][j] *= -1;
         }
@@ -435,21 +441,20 @@ void reverse_board(Board *b) {
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 3; j++) {
             int temp = b->board[i][j];
-            b->board[i][j] = b->board[4-i][4-j];
-            b->board[4-i][4-j] = temp;
+            b->board[i][j] = b->board[4 - i][4 - j];
+            b->board[4 - i][4 - j] = temp;
         }
     }
     for (int i = 0; i < 6; i++) {
-        int temp = b->previous_action[i];
-        b->previous_action[i] = b->next_action[i];
-        b->next_action[i] = temp;
-    
-    return *b;
+        int temp = b->previous_stock[i];
+        b->previous_stock[i] = b->next_stock[i];
+        b->next_stock[i] = temp;
+    }
 }
 
 void reverse_action(Action *action) {
     // actionの表す動きを、盤面を180°回転させた時の新たな動きに変更する
-    
+
     action->from_x = 4 - action->from_x;
     action->from_y = 4 - action->from_y;
     action->to_x = 4 - action->to_x;
@@ -476,7 +481,7 @@ void update_board(Board *b, Action action) {
     }
 }
 
-double stop_watch(struct timespec start_time, struct timespec end_time){
+double stop_watch(struct timespec start_time, struct timespec end_time) {
     // 経過時間を秒単位で返す.
     /* 使用例
     struct timespec start_time, end_time;
@@ -488,7 +493,7 @@ double stop_watch(struct timespec start_time, struct timespec end_time){
     */
     long int sec = end_time.tv_sec - start_time.tv_sec;
     long int nsec = end_time.tv_nsec - start_time.tv_nsec;
-    return (double)sec + (double)nsec/pow(10,9);
+    return (double) sec + (double) nsec / pow(10, 9);
 }
 
 
