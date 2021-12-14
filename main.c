@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 #endif
 
         // 取ってきた行動が合法手か？ (千日手を除く)
-        if (!is_possible_actions(&board, &action)) {
+        if (!is_possible_action(&board, &action)) {
             debug_print("the specified action is not legal.");
             winner = current_player * (-1);
             break;

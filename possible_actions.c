@@ -320,7 +320,7 @@ int is_checkmate(const Board *b){
 }
 
 
-int is_possible_actions(const Board *b, const Action *action){
+int is_possible_action(const Board *b, const Action *action){
     // actionが正当なら1, 不当なら0を返す.
     Action all_actions[LEN_ACTIONS];
     int len_all_actions = get_all_actions(b, all_actions);
