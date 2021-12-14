@@ -329,32 +329,62 @@ int action_equal(const Action *action1, const Action *action2) {
                action1->promotion == action2->promotion;
 }
 
-Action string_to_action(const char *action_string) {
+int string_to_action(const char *action_string, Action *return_action) {
     // action_stringは「グループ課題: 2回目」のページで指定されている、駒の動きを表す文字列
-    // これを解析し、Action型の変数に詰め込んで戻り値として返す
+    // これを解析し、return_actionに詰め込む
+    // action_string が不正な文字列であった時は1を、正しい文字列であったときは0を返す
     // 例えば"3CGI"が入力された場合、aをAction型の変数として
     //   a.from_stock = GI, a.to_x = 2, a.to_y = 2, a.turn_over = 0
     // となる。なお、この場合 a.from_x, a.from_y は何でも良い。
-    Action action;
-    if ((action_string[2] - 0 <= '5')) { //駒の移動
-        action.from_stock = EMPTY;
-        action.from_x = '5' - action_string[0];
-        action.from_y = action_string[1] - 'A';
-        action.to_x = '5' - action_string[2];
-        action.to_y = action_string[3] - 'A';
-        if (action_string[4] != '\0') {
+
+    static const char *piece_ch[] = {
+            "", "FU", "KK", "HI", "GI", "KI"
+    };
+
+    Action action = {.from_stock=EMPTY, .promotion=0};  // 解析結果を入れる変数
+    const char *str = action_string;  // 名前が長いのでエイリアスにする
+    int ptr = 0;
+
+    // action_string の1文字目の解析
+    if (str[ptr] < '1' || '5' < str[ptr]) return 1;
+    action.from_x = action.to_x = '5' - str[ptr++];
+
+    // action_string の2文字目の解析
+    if (str[ptr] < 'A' || 'E' < str[ptr]) return 1;
+    action.from_y = action.to_y = str[ptr++] - 'A';
+
+    // action_string の3文字目は数字かそれ以外かで分岐
+    if ('1' <= str[ptr] && str[ptr] <= '5') {  // 3文字目が数字のとき
+        action.to_x = '5' - str[ptr++];
+
+        // action_string の4文字目の解析
+        if (str[ptr] < 'A' || 'E' < str[ptr]) return 1;
+        action.to_y = str[ptr++] - 'A';
+
+        // action_string の5文字目に 'N' があるなら成る
+        if (str[ptr] == 'N') {
             action.promotion = 1;
-        } else action.promotion = 0;
-    } else { // 持ち駒の配置
-        action.to_x = '5' - action_string[0];
-        action.to_y = action_string[1] - 'A';
-        if (action_string[2] - 0 == 'G') action.from_stock = GIN;
-        else if (action_string[2] - 0 == 'H') action.from_stock = HISHA;
-        else if (action_string[2] - 0 == 'F') action.from_stock = FU;
-        else if (action_string[3] - 0 == 'I') action.from_stock = KIN;
-        else action.from_stock = KAKU;
+            ptr++;
+        }
+    } else {  // 3文字目が数字でないとき
+        for (int p = FU; p <= KIN; ++p) {  // piece_ch の要素のどれかにマッチするまでループ
+            if (str[ptr] == piece_ch[p][0] && str[ptr + 1] == piece_ch[p][1]) {
+                action.from_stock = p;
+                goto MATCHED;
+            }
+        }
+        return 1;  // piece_ch のどの要素にもマッチしなかった
+
+        MATCHED:  // piece_ch のどれかにマッチした
+        ptr++;
     }
-    return action;
+
+    // action_string の最後に余計な文字がないことを確認
+    if (str[ptr] != '\0')
+        return 1;
+
+    *return_action = action;
+    return 0;
 }
 
 void action_to_string(Action action, char return_buffer[32]) {
