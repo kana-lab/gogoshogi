@@ -52,15 +52,16 @@ void display_action(Action action, int turn) {
     puts(buf);
 }
 
-void print_all_actions(const Board *b, int turn) {
+void print_all_actions(const Board *b, int turn){
     // 可能な指手を全て出力する
 
     printf("--- all possible actions ---\n");
     Action all_actions[LEN_ACTIONS];
-    int len_possible_actions = get_all_actions(b, all_actions);
-    for (int i = 0; i < len_possible_actions; i++) {
+    int len_all_actions = get_all_actions(b, all_actions);
+    for (int i = 0; i < len_all_actions; i++){
         display_action(all_actions[i], turn);
     }
+    printf("There are %d possible actions\n", len_all_actions);
     printf("----------------------------\n");
 }
 
