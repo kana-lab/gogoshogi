@@ -32,7 +32,11 @@ Action get_user_action(int turn) {
     char buf[32] = {};
     scanf("%31s", buf);
 
-    Action action = string_to_action(buf);
+    Action action;
+    if(0 != string_to_action(buf,&action)){
+        debug_print("in get_user_action: invalid input string.");
+        abort_game(USER);
+    }
 
     if (turn % 2 == 0)  // 偶数手番のとき盤面の逆転がある
         reverse_action(&action);
