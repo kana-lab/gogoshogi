@@ -360,11 +360,67 @@ void action_to_string(Action action, char return_buffer[32]) {
     // actionの表す駒の動きを、「グループ課題: 2回目」のページで指定されているフォーマットに
     // 従った文字列に翻訳し、return_bufferに入れる
     // 文字列の最後には番兵として(数字の)0を入れること！
+    
+    if (action.from_stock){
+        return_buffer[0] = '5' - action.to_x;
+        return_buffer[1] = 'A' + action.to_y;
+
+        if (action.from_stock == FU){
+            return_buffer[2] = 'F'; return_buffer[3] = 'U';
+        } else if (action.from_stock == KAKU){
+            return_buffer[2] = 'K'; return_buffer[3] = 'K';
+        } else if (action.from_stock == HISHA){
+            return_buffer[2] = 'H'; return_buffer[3] = 'I';
+        } else if (action.from_stock == GIN){
+            return_buffer[2] = 'G'; return_buffer[3] = 'I';
+        } else if (action.from_stock == KIN){
+            return_buffer[2] = 'K'; return_buffer[3] = 'I';
+        }
+
+        return_buffer[4] = '\0';
+
+    } else {
+        return_buffer[0] = '5' - action.from_x;
+        return_buffer[1] = 'A' + action.from_y;
+        return_buffer[2] = '5' - action.to_x;
+        return_buffer[3] = 'A' + action.to_y;
+        if (action.promotion){
+            return_buffer[4] = 'N'; return_buffer[5] = '\0';
+        } else {
+            return_buffer[4] = '\0';
+        }
+    }
 }
 
 Board create_board(int first_mover) {
     // Board型の盤面を作って初期化し、それを戻り値として返す
     // first_mover引数は先手を表し、USER か AI のいずれかである
+    
+    Board b;
+
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 5; j++){
+            b.board[i][j] = EMPTY;
+        }
+    }
+    b.board[0][0] = -HISHA;
+    b.board[0][1] = -KAKU;
+    b.board[0][2] = -GIN;
+    b.board[0][3] = -KIN;
+    b.board[0][4] = -OU;
+    b.board[1][4] = -FU;
+    b.board[3][0] = FU;
+    b.board[4][0] = OU;
+    b.board[4][1] = KIN;
+    b.board[4][2] = GIN;
+    b.board[4][3] = KAKU;
+    b.board[4][4] = HISHA;
+
+    for(int i = 0; i < 6; i++){
+        b.next_stock[i] = b.previous_stock[i] = 0;
+    }
+
+    return b;
 }
 
 void reverse_board(Board *b) {
