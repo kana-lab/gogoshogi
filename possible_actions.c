@@ -36,7 +36,7 @@ get_all_actionsの流れ
  *   - get_all_actions
  *   - get_number_of_moves
  *   - is_checkmate
- *   - is_possible_actions
+ *   - is_possible_action
  *   - is_useful
  *   - get_useful_actions
  ************************************/
