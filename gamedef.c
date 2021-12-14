@@ -335,25 +335,25 @@ Action string_to_action(const char *action_string) {
     // 例えば"3CGI"が入力された場合、aをAction型の変数として
     //   a.from_stock = GI, a.to_x = 2, a.to_y = 2, a.turn_over = 0
     // となる。なお、この場合 a.from_x, a.from_y は何でも良い。
-    Action *action;
+    Action action;
     if ((action_string[2] - 0 <= 53)) { //駒の移動
-        action->from_x = action_string[0] - 48;
-        action->from_y = action_string[1] - 65;
-        action->to_x = action_string[2] - 48;
-        action->to_y = action_string[3] - 65;
+        action.from_x = action_string[0] - 48;
+        action.from_y = action_string[1] - 65;
+        action.to_x = action_string[2] - 48;
+        action.to_y = action_string[3] - 65;
         if (action_string[4] != '\0') {
-            action->promotion = 1;
-        } else action->promotion = 0;
+            action.promotion = 1;
+        } else action.promotion = 0;
     } else { // 持ち駒の配置
-        action->to_x = action_string[0] - 48;
-        action->to_y = action_string[1] - 65;
-        if (action_string[2] - 0 == 71) action->from_stock = GIN;
-        else if (action_string[2] - 0 == 72) action->from_stock = HISHA;
-        else if (action_string[2] - 0 == 70) action->from_stock = FU;
-        else if (action_string[3] - 0 == 73) action->from_stock = KIN;
-        else action->from_stock = KAKU;
+        action.to_x = action_string[0] - 48;
+        action.to_y = action_string[1] - 65;
+        if (action_string[2] - 0 == 71) action.from_stock = GIN;
+        else if (action_string[2] - 0 == 72) action.from_stock = HISHA;
+        else if (action_string[2] - 0 == 70) action.from_stock = FU;
+        else if (action_string[3] - 0 == 73) action.from_stock = KIN;
+        else action.from_stock = KAKU;
     }
-    return *action;
+    return action;
 }
 
 void action_to_string(Action action, char return_buffer[32]) {

@@ -31,6 +31,7 @@ Action get_user_action(int turn) {
     // ユーザーからの入力を受ける
     char buf[32] = {};
     scanf("%31s", buf);
+    debug_print("input string: %s", buf);
 
     Action action = string_to_action(buf);
 
