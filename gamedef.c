@@ -429,7 +429,7 @@ void action_to_string(Action action, char return_buffer[32]) {
     }
 }
 
-Board create_board(int first_mover) {
+Board create_board(void) {
     // Board型の盤面を作って初期化し、それを戻り値として返す
     // first_mover引数は先手を表し、USER か AI のいずれかである
 
