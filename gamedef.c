@@ -341,7 +341,7 @@ Action string_to_action(const char *action_string) {
         action->from_y = action_string[1] - 65;
         action->to_x = action_string[2] - 48;
         action->to_y = action_string[3] - 65;
-        if (action_string[5] != '\0') {
+        if (action_string[4] != '\0') {
             action->promotion = 1;
         } else action->promotion = 0;
     } else { // 持ち駒の配置
