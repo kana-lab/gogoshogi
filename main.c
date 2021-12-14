@@ -52,13 +52,13 @@ void display_action(Action action, int turn) {
     puts(buf);
 }
 
-void print_all_actions(const Board *b, int turn){
+void print_all_actions(const Board *b, int turn) {
     // 可能な指手を全て出力する
-    
+
     printf("--- all possible actions ---\n");
     Action all_actions[LEN_ACTIONS];
     int len_possible_actions = get_all_actions(b, all_actions);
-    for (int i = 0; i < len_possible_actions; i++){
+    for (int i = 0; i < len_possible_actions; i++) {
         display_action(all_actions[i], turn);
     }
     printf("----------------------------\n");
@@ -99,6 +99,11 @@ int main(int argc, char *argv[]) {
     // ゲームのループをまわし、勝者を決める
     int winner = 0;
     for (int turn = 1; turn <= MAX_TURN; ++turn) {  // 150手以内
+
+#ifdef DEBUG_MODE
+        print_all_actions(&board, turn);
+#endif
+
         Action action;
         int current_player = (first_is_user + turn) % 2 ? AI : USER;
 
