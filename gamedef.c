@@ -376,7 +376,7 @@ int string_to_action(const char *action_string, Action *return_action) {
         return 1;  // piece_ch のどの要素にもマッチしなかった
 
         MATCHED:  // piece_ch のどれかにマッチした
-        ptr++;
+        ptr += 2;
     }
 
     // action_string の最後に余計な文字がないことを確認
