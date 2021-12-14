@@ -441,7 +441,7 @@ void reverse_board(Board *b) {
     }
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 3; j++) {
-            if (j == 2 && i >= 3)) continue;
+            if (j == 2 && i >= 3) continue;
             else {
             int temp = b->board[i][j];
             b->board[i][j] = b->board[4 - i][4 - j];
