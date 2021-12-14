@@ -338,15 +338,15 @@ Action string_to_action(const char *action_string) {
     Action action;
     if ((action_string[2] - 0 <= '5')) { //駒の移動
         action.from_stock = EMPTY;
-        action.from_x = action_string[0] - '1';
+        action.from_x = '5' - action_string[0];
         action.from_y = action_string[1] - 'A';
-        action.to_x = action_string[2] - '1';
+        action.to_x = '5' - action_string[2];
         action.to_y = action_string[3] - 'A';
         if (action_string[4] != '\0') {
             action.promotion = 1;
         } else action.promotion = 0;
     } else { // 持ち駒の配置
-        action.to_x = action_string[0] - '1';
+        action.to_x = '5' - action_string[0];
         action.to_y = action_string[1] - 'A';
         if (action_string[2] - 0 == 'G') action.from_stock = GIN;
         else if (action_string[2] - 0 == 'H') action.from_stock = HISHA;
