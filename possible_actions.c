@@ -386,17 +386,6 @@ int get_useful_actions(const Board *b, Action actions[LEN_ACTIONS]){
 }
 
 
-void print_actions(const Action actions[LEN_ACTIONS], int len_actions){
-    printf("show %d actions\n", len_actions);
-    for (int i = 0; i < len_actions; i++){
-        char buf[32] = {};
-        action_to_string(actions[i], buf);
-        printf("%s ", buf);
-    }
-    putchar('\n');
-}
-
-
 #endif  /* POSSIBLE_ACTIONS */
 
 /*
