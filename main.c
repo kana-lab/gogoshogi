@@ -114,6 +114,10 @@ int main(int argc, char *argv[]) {
             }
         }
 
+#ifdef DEBUG_MODE
+        display_action(action, turn);
+#endif
+
         // 取ってきた行動が合法手か？ (千日手を除く)
         if (!is_possible_actions(&board, &action)) {
             debug_print("the specified action is not legal.");
