@@ -100,10 +100,8 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    int first_mover = (first_is_user) ? USER : AI;
-
     // 初期化済みの盤面を作る
-    Board board = create_board(first_mover);
+    Board board = create_board();
 
     // 盤面の履歴を保持する配列を宣言し、初期化する
     Board history[MAX_TURN] = {};
@@ -120,8 +118,8 @@ int main(int argc, char *argv[]) {
         Action action;
         int current_player = (first_is_user + turn) % 2 ? AI : USER;
 
-        // まず、詰みかどうかをチェックする (ステイルメイトは除外)
-        if (is_checkmate(&board) && is_checked(board)) {
+        // まず、詰みかどうかをチェックする
+        if (is_checkmate(&board)) {
             debug_print("checkmate.");
             winner = current_player * (-1);
             break;
