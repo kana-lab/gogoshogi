@@ -33,6 +33,7 @@ get_all_actionsの流れ
  *   - add_drop_actions
  *   - is_checking
  *   - is_checked
+ *   - is_drop_pawn_check
  *   - get_all_actions
  *   - get_number_of_moves
  *   - is_checkmate
@@ -268,6 +269,12 @@ int is_checked(Board b){
 }
 
 
+int is_drop_pawn_check(const Board *b, const Action *action){
+    // actionが歩を打って王手する指手かどうかを判定する.
+    return action->from_stock == FU && b->board[action->to_x+move_matrix_x[FU][0]][action->to_y+move_matrix_y[FU][0]] == -OU;
+}
+
+
 // update_boardを使用
 int get_all_actions(const Board *b, Action all_actions[LEN_ACTIONS]){
     /*
@@ -290,7 +297,7 @@ int get_all_actions(const Board *b, Action all_actions[LEN_ACTIONS]){
         if (is_checked(next_b))
             // 王手放置のとき
             continue;
-        if (tmp_actions[i].from_stock == FU && b->board[tmp_actions[i].to_x+move_matrix_x[FU][0]][tmp_actions[i].to_y+move_matrix_y[FU][0]] == -OU){
+        if (is_drop_pawn_check(b, &tmp_actions[i])){
             // 歩を打って王手するとき
             Board next_b = *b;
             update_board(&next_b, tmp_actions[i]);
