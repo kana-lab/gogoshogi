@@ -12,6 +12,9 @@
 /************************************
  * 定義済み関数一覧
  *   - is_threefold_repetition
+ *   - get_all_actions_with_tfr
+ *   - is_possible_action_with_tfr
+ *   - is_checkmate_with_tfr
  ************************************/
 
 int is_threefold_repetition(Board history[], int history_len, Board *b) {
@@ -56,6 +59,62 @@ int is_threefold_repetition(Board history[], int history_len, Board *b) {
     }
 
     return 0;
+}
+
+
+int get_all_actions_with_tfr(Board *b, Action all_actions[LEN_ACTIONS], Board history[], int history_len, int turn){
+    // 選択可能な指手を全列挙する.
+    // get_all_actionsとは異なり, 千日手も考慮して, 反則手を完全に除くものとする.
+    // 手番を終えた側がすぐに負けになるような指手は反則手とみなす.
+    // すなわち, 連続王手千日手や先手が千日手にもちこむ指手は反則手である.
+    // 最後の審判のようなコーナーケースに注意する.
+
+    // 千日手を考慮せずに可能な指手を全列挙する.
+    Action tmp_actions[LEN_ACTIONS];
+    int len_tmp_actions = get_all_actions(b, tmp_actions);
+
+    // 千日手関連の反則手を削除する.
+    int end_index = 0;
+    for (int i = 0; i < len_tmp_actions; i++){
+        // 連続王手千日手と, 先手が千日手にもちこむ指手を削除する.
+        Board next_b = *b;
+        update_board(&next_b, tmp_actions[i]);
+        int tfr = is_threefold_repetition(history, history_len, &next_b);
+        if (tfr == -1 || (tfr == 1 && turn % 2))
+            continue;
+        // 最後の審判のようなケースを削除する.
+        // 先手に千日手を強いるような打ち歩詰めも削除する.
+        if (is_drop_pawn_check(b, &tmp_actions[i])){
+            reverse_board(&next_b);
+            Action next_actions[LEN_ACTIONS];
+            if (get_all_actions_with_tfr(&next_b, next_actions, history, history_len+1, turn+1) == 0)
+                // 打ち歩詰めのとき
+                continue;
+        }
+        all_actions[end_index++] = tmp_actions[i];
+    }
+
+    return end_index;
+}
+
+int is_possible_action_with_tfr(Board *b, Action *action, Board history[], int history_len, int turn){
+    // 選択可能な指手かどうかを判定する.
+    // is_possible_actionとは異なり, 千日手も考慮する.
+    Action all_actions[LEN_ACTIONS];
+    int len_all_actions = get_all_actions_with_tfr(b, all_actions, history, history_len, turn);
+    for (int i = 0; i < len_all_actions; i++){
+        if (action_equal(action, &all_actions[i]))
+            return 1;
+    }
+    return 0;
+}
+
+int is_checkmate_with_tfr(Board *b, Board history[], int history_len, int turn){
+    // 詰みかどうかを判定する.
+    // is_checkmateとは異なり, 千日手も考慮する.
+    // 手番側に選択可能な指手があるときに0, ないときに1を返す.
+    Action all_actions[LEN_ACTIONS];
+    return get_all_actions_with_tfr(b, all_actions, history, history_len, turn) == 0;
 }
 
 
