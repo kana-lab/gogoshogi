@@ -18,6 +18,13 @@
     ・今のところ、NNの適用は10秒間に10^4回程度と見積もっている。
 
 
+・NNの暫定的なモデル
+    ・NNUE評価関数を参考にした。
+    ・535 -Affine-> 32 -ReLU-> 32 -Affine-> 32 -ReLU-> 32 -Affine-> 1 -Sigmoid-> 1
+    ・optimizer: Adam(lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-7)
+    
+
+
 
 ゲームシステム確認事項
 
