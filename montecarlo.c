@@ -1,8 +1,15 @@
 #ifndef MONTECARLO
 #define MONTECARLO
 
+//
+// このモジュールではモンテカルロ木探索に関する機能を実装する
+// 参考:
+//   wikipedia: https://ja.wikipedia.org/wiki/モンテカルロ木探索
+//   Platinum Data Blog: https://blog.brainpad.co.jp/entry/2018/04/05/163000
+//
 
 #include "gamedef.c"
+
 
 #define EXPANSION_THRESHOLD 10
 #define
@@ -36,6 +43,11 @@ void expand(Node *root) {
 int evaluate(Board b) {
     // 盤面bからランダムにプレイアウトを行い勝敗を判定する
     // 自分が勝った場合1を、相手が勝った場合0を返す
+    // 千日手どうしよう
+}
+
+Node* play(Node* root){
+    // rootの子ノードの中から次に打つべき手を選んで、そのアドレスを返す
 }
 
 int monte_carlo_tree_search(Node *root) {
@@ -62,6 +74,14 @@ int monte_carlo_tree_search(Node *root) {
 
     root->win_count += i_win;
     return i_win;
+}
+
+Action delta_of(const Board* before, const Board *after){
+    // beforeとafterの差は一手分であるとし、その一手を検出して戻り値として返す
+}
+
+Action get_ai_action_sample(Board history[], int history_len, Board* b, int turn, Node* cache){
+    // 制限時間内でmonte_carlo_tree_searchを繰り返し行い、play関数で最善手を得て返す
 }
 
 
