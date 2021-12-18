@@ -203,7 +203,6 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2) {
         int current_player = (game->turn % 2) ? 1 : -1;
 
         // まず、詰みかどうかをチェックする
-        // 合ってるかわからない (千日手の判定できてる？)
         if (is_checkmate_with_tfr(game)) {
             debug_print("checkmate.");
             winner = current_player * (-1);
