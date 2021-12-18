@@ -225,6 +225,26 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2) {
             winner = current_player * (-1);
             break;
         }
+        
+        // 千日手が成立するか？
+        int tfr = is_threefold_repetition(game, action);
+        if (tfr){
+            if (tfr == 1 && current_player == -1){
+                // 後手が千日手を決めたとき
+                winner = current_player;
+            } else if (tfr == -1){
+                // 連続王手千日手が成立したとき
+                // エラー処理 (理由: 連続王手千日手は反則手であり, possible_actionではないから)
+                debug_print("error: threefold repetition with continuous check");
+                winner = current_player * (-1);
+            } else {
+                // 先手が千日手を決めたとき
+                // エラー処理 (理由: 先手が千日手を決める指手は反則手であり, possible_actionではないから)
+                debug_print("error: threefold repetition by the first player");
+                winner = current_player * (-1);
+            }
+            break;
+        }
 
         // 実際に駒を動かす
         do_action_without_error_check(game, action);
