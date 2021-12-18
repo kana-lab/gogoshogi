@@ -8,7 +8,7 @@
 //   Platinum Data Blog: https://blog.brainpad.co.jp/entry/2018/04/05/163000
 //
 
-#include "gamedef.c"
+#include "OLD/gamedef.c"
 
 
 #define EXPANSION_THRESHOLD 10

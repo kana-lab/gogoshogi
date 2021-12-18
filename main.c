@@ -1,83 +1,91 @@
-#include "gamedef.c"
-#include "gameutils.c"
-
-#define MAX_TURN 150
-
-
-/*************************
- * 未定義の関数群
- * これから分担して実装する
- *   - get_ai_action
- *************************/
-
-// debug_print関数を積極的に利用し、随所にエラーメッセージを散りばめること！
-
-Action get_user_action(int);  // プロトタイプ宣言
-
-Action get_ai_action(Board *b, int turn) {
-    // 盤面bを受け取って、次にAIがどう打つべきかを決定する
-    // 次の行動はAction型の変数にして返す
-    return get_user_action(turn + 1);
-}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "Game.h"
 
 
-/************************
- * 以下プログラムの本流
- ************************/
+/*******************************
+ * ユーザーを表すクラスUserの定義
+ *******************************/
 
-Action get_user_action(int turn) {
-    // ユーザー入力を受けて、その文字列をAction型の変数に翻訳して返す
+// PlayerInterfaceクラスを継承
+typedef struct tagUser {
+    Action (*get_action)(struct tagUser *self, const Game *game);
 
-    // ユーザーからの入力を受ける
-    char buf[32] = {};
-    scanf("%31s", buf);
+    char buf[32];  // 入出力時に利用するバッファ
+} User;
 
-    Action action;
-    if (0 != string_to_action(buf, &action)) {
-        debug_print("in get_user_action: invalid input string.");
-        abort_game(USER);
+
+Action get_user_action(User *self, const Game *game) {
+    // 前のプレイヤーの行動を表示し、ユーザーからの入力を待つ
+
+    // 前のプレイヤーの行動を表示
+    Action previous_action = get_previous_action(game);
+    Action null_action = {};
+    if (!action_equal(&previous_action, &null_action)) {
+        if (game->turn % 2)  // 自分が先手であるとき
+            reverse_action(&previous_action);
+        action_to_string(previous_action, self->buf);
+        puts(self->buf);
     }
 
-    if (turn % 2 == 0)  // 偶数手番のとき盤面の逆転がある
+    // ユーザーからの入力を受ける
+    scanf("%31s", self->buf);
+
+    Action action;
+    if (!string_to_action(self->buf, &action)) {
+        debug_print("in get_user_action: invalid input string.");
+
+        // abort_game()関数を消したので若干汚い…あった方が良いのか否か
+        puts("You Lose");
+        exit(1);
+    }
+
+    if (game->turn % 2 == 0)  // 自分が後手のとき
         reverse_action(&action);
 
     return action;
 }
 
-void display_action(Action action, int turn) {
-    // actionの表す行動を、"2A3A"等の文字列に変換してプリントする
 
-    if (turn % 2 == 0)  // 偶数手番のとき盤面の逆転がある
-        reverse_action(&action);
-
-    char buf[32] = {};
-    action_to_string(action, buf);
-    puts(buf);
+User create_user() {
+    return (User) {
+            .get_action=get_user_action,
+            .buf={}
+    };
 }
 
-void print_all_actions(const Board *b, int turn) {
-    // 可能な指手を全て出力する
 
-#ifdef DEBUG_MODE
-    printf("------------------- all possible actions -------------------\n");
+/******************************
+ * AIを表すクラスAIの定義
+ ******************************/
 
-    // 全ての可能な指手をゲットする
-    Action all_actions[LEN_ACTIONS];
-    int len_all_actions = get_all_actions(b, all_actions);
+// PlayerInterfaceクラスを継承
+typedef struct tagAI {
+    Action (*get_action)(struct tagAI *self, const Game *game);
 
-    // 良い感じに整形して表示
     char buf[32];
-    for (int i = 0; i < len_all_actions; i++) {
-        if (i % 10 == 0 && i)
-            puts("");
-        action_to_string(all_actions[i], buf);
-        printf("%s, ", buf);
-    }
-    puts("");
+} AI;
 
-    printf("------------------------------------------------------------\n");
-#endif
+
+Action get_ai_action(AI *self, const Game *game) {
+    Game *game_hack = (Game *) game;
+    game_hack->turn++;
+    Action result = get_user_action((User *) self, game_hack);
+    game_hack->turn--;
+    return result;
 }
+
+AI create_ai() {
+    return (AI) {
+            .get_action=get_ai_action,
+    };
+}
+
+
+/******************************
+ * 以下main関数
+ ******************************/
 
 int main(int argc, char *argv[]) {
     // 引数の個数をチェック
@@ -87,93 +95,36 @@ int main(int argc, char *argv[]) {
     }
 
     // 先手か後手か
-    int first_is_user;
-    int second_is_user;
+    bool is_user_first;
     if (!strcmp(argv[1], "0")) {
-        first_is_user = 1;
-        second_is_user = 0;
+        is_user_first = true;
     } else if (!strcmp(argv[1], "1")) {
-        first_is_user = 0;
-        second_is_user = 1;
+        is_user_first = false;
     } else {
         puts("invalid command line argument.");
         return -1;
     }
 
-    // 初期化済みの盤面を作る
-    Board board = create_board();
+    // プレイヤーの宣言
+    AI ai = create_ai();
+    User user = create_user();
 
-    // 盤面の履歴を保持する配列を宣言し、初期化する
-    Board history[MAX_TURN] = {};
-    int history_index = 0;
-    history[history_index++] = board;
+    // 初期化済みのゲームクラスを作る
+    Game game = create_game();
 
-    // ゲームのループをまわし、勝者を決める
-    int winner = 0;
-    for (int turn = 1; turn <= MAX_TURN; ++turn) {  // 150手以内
-        // デバッグプリント
-        print_board_for_debug(&board);
-        print_all_actions(&board, turn);
-
-        Action action;
-        int current_player = (first_is_user + turn) % 2 ? AI : USER;
-
-        // まず、詰みかどうかをチェックする
-        if (is_checkmate(&board)) {
-            debug_print("checkmate.");
-            winner = current_player * (-1);
-            break;
-        }
-
-        // 次の行動を取ってくる (合法手がなくても指さなければならない事に注意)
-        if (turn % 2) {  // 奇数手番, 盤面の逆転なし
-            if (first_is_user) {
-                action = get_user_action(turn);
-            } else {
-                action = get_ai_action(&board, turn);
-                display_action(action, turn);
-            }
-        } else {  // 偶数手番, 盤面の逆転あり
-            if (second_is_user) {
-                action = get_user_action(turn);
-            } else {
-                action = get_ai_action(&board, turn);
-                display_action(action, turn);
-            }
-        }
-
-        // 取ってきた行動が合法手か？ (千日手を除く)
-        if (!is_possible_action(&board, &action)) {
-            debug_print("the specified action is not legal.");
-            winner = current_player * (-1);
-            break;
-        }
-
-        // 実際に駒を動かす
-        update_board(&board, action);
-
-        // 千日手のチェック
-        int three_fold_repetition = is_threefold_repetition(history, history_index, &board);
-        if (three_fold_repetition == 1) {
-            debug_print("three fold repetition has occurred.");
-            winner = (first_is_user) ? AI : USER;
-            break;
-        } else if (three_fold_repetition == -1) {
-            debug_print("three fold repetition (with continuous checks) has occurred.");
-            winner = current_player * (-1);
-            break;
-        }
-
-        // 盤面を履歴に追加し、180°回転させる
-        history[history_index++] = board;
-        reverse_board(&board);
+    // ゲームを行い、勝者を決める
+    int winner;
+    if (is_user_first) {
+        winner = play(&game, (PlayerInterface *) &user, (PlayerInterface *) &ai);
+    } else {
+        winner = play(&game, (PlayerInterface *) &ai, (PlayerInterface *) &user);
     }
 
     // 勝敗の表示
-    if (winner == USER) {
-        puts("You Win");
-    } else if (winner == AI) {
-        puts("You Lose");
+    if (winner == 1) {
+        puts((is_user_first) ? "You Win" : "You Lose");
+    } else if (winner == -1) {
+        puts((is_user_first) ? "You Lose" : "You Win");
     } else {
         puts("Draw");
     }

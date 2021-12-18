@@ -22,7 +22,7 @@ int main(void){
     nn = malloc(sizeof(NeuralNetwork));
     int model_size[4] = {IMAGE_SIZE*IMAGE_SIZE, 32, 32, 1};
     nn_init(nn, model_size);
-    
+
     // データセットの準備
     FILE *fp;
 
@@ -44,7 +44,7 @@ int main(void){
             fscanf(fp, "%lf", &X_train[i][j]);
     }
     fclose(fp);
-    
+
     double **X_test, **y_test;
     X_test = malloc(TEST_SIZE * sizeof(double*));
     y_test = malloc(TEST_SIZE * sizeof(double*));
