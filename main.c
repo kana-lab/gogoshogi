@@ -76,6 +76,7 @@ Action get_ai_action(AI *self, const Game *game) {
     return result;
 }
 
+
 AI create_ai() {
     return (AI) {
             .get_action=get_ai_action,

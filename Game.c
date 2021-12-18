@@ -73,7 +73,7 @@ static void do_action_without_error_check(Game *game, Action action) {
 }
 
 
-static void redo_action(Game *game) {
+static void undo_action(Game *game) {
     // ゲームを1ターン戻す
     // デバッグしてない
 
@@ -113,10 +113,10 @@ int get_all_actions_with_tfr(Game *game, Action all_actions[LEN_ACTIONS]) {
             Action next_actions[LEN_ACTIONS];
             if (get_all_actions_with_tfr(game, next_actions) == 0) {
                 // 打ち歩詰めのとき
-                redo_action(game);
+                undo_action(game);
                 continue;
             } else {
-                redo_action(game);
+                undo_action(game);
             }
         }
         all_actions[end_index++] = tmp_actions[i];
