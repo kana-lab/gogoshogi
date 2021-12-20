@@ -146,10 +146,10 @@ void mirror_board(Board *b){
 int main(void){
 
     // モデルの準備
-    NeuralNetwork *nn;
-    nn = malloc(sizeof(NeuralNetwork));
-    int model_size[4] = {INPUT_SIZE, 32, 32, 1};
-    nn_init(nn, model_size);
+    NeuralNetwork nn;
+    int depth = 3;
+    int sizes[4] = {INPUT_SIZE, 32, 32, 1};
+    nn_init(&nn, depth, sizes);
 
     // データセットの準備
     FILE *fp = fopen(DATASET, "r");
@@ -186,15 +186,15 @@ int main(void){
     fclose(fp);
 
     // 重みの読み込み
-    //nn_load_weights(nn, WEIGHTS_FILE);
+    //nn_load_weights(&nn, WEIGHTS_FILE);
 
     // モデルの学習
     double lr = 0.001;
     int epoch = 5;
-    nn_fit(nn, X_train, y_train, 2*TRAIN_SIZE, X_test, y_test, TEST_SIZE, lr, epoch);
+    nn_fit(&nn, X_train, y_train, 2*TRAIN_SIZE, X_test, y_test, TEST_SIZE, lr, epoch);
 
     // 重みの保存
-    //nn_save_weights(nn, WEIGHTS_FILE);
+    //nn_save_weights(&nn, WEIGHTS_FILE);
 
     return 0;
 }
