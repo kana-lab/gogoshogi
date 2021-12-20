@@ -179,7 +179,7 @@ Hash encode(Board *b) {
             int piece = b->board[i][j];
 
             if (piece != EMPTY) {
-                int kind_of_piece = abs(piece) % NARI;
+                int kind_of_piece = (piece != OU) ? abs(piece) % NARI : OU;
                 HashField *hf = &field[kind_of_piece - 1][0];
 
                 if (hf->is_enabled)
