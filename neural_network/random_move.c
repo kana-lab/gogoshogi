@@ -5,8 +5,7 @@
 
 
 #define HASH_MOD 9999991 // 10^7以下の最大素数
-#define HASH_BASE 2
-#define DATASET "checkmate.txt"
+#define DATASET "checkmates.txt"
 
 
 /*
@@ -70,6 +69,7 @@ int get_hash_mod(const Hash *h) {
 
 
 void save_board(Game *game, bool hash_table[HASH_MOD]) {
+    // gameが, hash_tableとhashが衝突しないときにgameをdatasetに保存する.
     FILE *fp = fopen(DATASET, "a");
     Board win_board = game->history[game->history_len - 2];
     Board lose_board = game->history[game->history_len - 1];
