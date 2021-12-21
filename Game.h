@@ -11,11 +11,12 @@
  * Gameクラスの定義
  *********************************/
 
-typedef struct {                  // 試合一回分を表す構造体
-    Board current;                // 現在の盤面
-    int turn;                     // 現在のターン
-    Board history[MAX_TURN * 2];  // 盤面の履歴の配列, turn 個の盤面が入っている
-    int history_len;              // 履歴の長さを表す、常にturnと同一の値を取る
+typedef struct {      // 試合一回分を表す構造体
+    Board current;    // 現在の盤面
+    int turn;         // 現在のターン
+    Board *history;   // 盤面の履歴の配列(要素数はturn個), 配列は動的確保される
+    int history_len;  // 履歴の長さを表す、常にturnと同一の値を取る
+    int max_turn;     // この構造体が保持できる履歴の最大数
 } Game;
 
 typedef struct tagPlayerInterface {  // プレイヤーを表すインターフェースクラス
@@ -29,7 +30,11 @@ typedef struct tagPlayerInterface {  // プレイヤーを表すインターフ�
  * Gameクラスのメソッド
  *********************************/
 
-Game create_game();
+Game create_game(int max_turn);
+
+void destruct_game(Game* game);
+
+Game clone(const Game* game, int max_turn);
 
 int is_threefold_repetition(const Game *game, Action action);
 
@@ -39,7 +44,7 @@ bool is_possible_action_with_tfr(const Game *game, Action action);
 
 bool is_checkmate_with_tfr(const Game *game);
 
-Action get_previous_action(const Game* game);
+Action get_previous_action(const Game *game);
 
 int play(Game *game, PlayerInterface *player1, PlayerInterface *player2);
 

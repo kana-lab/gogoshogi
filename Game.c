@@ -1,19 +1,65 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "Game.h"
 
 
-Game create_game() {
+Game create_game(int max_turn) {
+    // Game型の変数を作るコンストラクタ
+    // max_turnは保持する履歴の数
+
+    // history配列の動的確保, 確保に失敗したらエラー
+    Board *history = (Board *) malloc(max_turn * sizeof(Board));
+    assert(history != NULL);
+
+    // 初期盤面の生成
     Board b = create_board();
+
+    // 履歴に初期盤面を追加
     Board b_rev = b;
     reverse_board(&b_rev);
+    history[0] = b_rev;
 
     return (Game) {
             .current=b,
             .turn=1,
-            .history={b_rev},
-            .history_len=1
+            .history=history,
+            .history_len=1,
+            .max_turn=max_turn
     };
+}
+
+
+void destruct_game(Game *game) {
+    // Game型の変数のデストラクタ
+    // 動的確保したメモリの解放を行う
+
+    free(game->history);
+}
+
+
+Game clone(const Game *game, int max_turn) {
+    // gameをコピーする、あとでdestruct_gameで解放必須
+    // max_turnは保持する履歴の数を指定する
+    // max_turnがgame->max_turnを下回っている場合は、max_turnはgame->max_turnに置き換えられる
+
+    if (max_turn < game->max_turn)
+        max_turn = game->max_turn;
+
+    Game game_copy = *game;
+    game_copy.max_turn = max_turn;
+
+    // history配列の動的確保, 確保に失敗したらエラー
+    Board *history = (Board *) malloc(max_turn * sizeof(Board));
+    assert(history != NULL);
+
+    // history配列のコピー
+    for (int i = 0; i < game->history_len; ++i)
+        history[i] = game->history[i];
+
+    game_copy.history = history;
+
+    return game_copy;
 }
 
 
@@ -195,7 +241,7 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2) {
     // AIが指した手の標準出力へのプリントは行われないことに注意
 
     int winner = 0;
-    while (game->turn <= MAX_TURN) {  // 150手以内
+    while (game->turn <= game->max_turn) {  // 150手以内
         // デバッグプリント
         print_board_for_debug(&game->current);
         print_all_actions_for_debug(game);

@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
     User user = create_user();
 
     // 初期化済みのゲームクラスを作る
-    Game game = create_game();
+    Game game = create_game(MAX_TURN);
 
     // ゲームを行い、勝者を決める
     int winner;
@@ -129,6 +129,9 @@ int main(int argc, char *argv[]) {
     } else {
         puts("Draw");
     }
+
+    // Game型変数の解放
+    destruct_game(&game);
 
     return 0;
 }
