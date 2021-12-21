@@ -51,6 +51,8 @@ int get_all_actions(const Board *b, Action all_actions[LEN_ACTIONS]);
 
 int get_useful_actions(const Board *b, Action actions[LEN_ACTIONS]);
 
+void count_connections(const Board *b, double counts[5][5]);
+
 Action delta_of(const Board *before, const Board *after);
 
 Hash encode(const Board *b);
