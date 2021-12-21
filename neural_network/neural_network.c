@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <time.h>
 
+
 /*
 ニューラルネットワークを実装した.
 */
