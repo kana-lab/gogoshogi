@@ -111,11 +111,7 @@ double nn_predict(NeuralNetwork *nn, const double x[], const double y[], double 
 
 int is_correct(const double y[], const double t[]){
     // モデルの出力yがtと一致しているかを返す.
-    assert(t[0] == 0.0 || t[0] == 1.0);
-    if (y[0] < 0.5)
-        return t[0] == 0.0;
-    else
-        return t[0] == 1.0;
+    return (y[0] < 0.5) == (t[0] < 0.5);
 }
 
 
@@ -142,9 +138,9 @@ void nn_train(NeuralNetwork *nn, double **X_train, double **y_train, int train_s
 
         // 時間を出力する.
         if (i == train_size/100)
-            printf("--- 1%% %lds\n", time(NULL) - start_time);
+            printf("---   1%% %lds\n", time(NULL) - start_time);
         else if (i == train_size/10)
-            printf("--- 10%% %lds\n", time(NULL) - start_time);
+            printf("---  10%% %lds\n", time(NULL) - start_time);
         else if (i == train_size - 1)
             printf("--- 100%% %lds\n", time(NULL) - start_time);
     }
@@ -170,9 +166,9 @@ void nn_test(NeuralNetwork *nn, double **X_test, double **y_test, int test_size)
 
         // 時間を出力する.
         if (i == test_size/100)
-            printf("--- 1%% %lds\n", time(NULL) - start_time);
+            printf("---   1%% %lds\n", time(NULL) - start_time);
         else if (i == test_size/10)
-            printf("--- 10%% %lds\n; ", time(NULL) - start_time);
+            printf("---  10%% %lds\n; ", time(NULL) - start_time);
         else if (i == test_size - 1)
             printf("--- 100%% %lds\n", time(NULL) - start_time);
     }
