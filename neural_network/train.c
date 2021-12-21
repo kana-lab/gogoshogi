@@ -63,7 +63,7 @@ void mirror_board(Board *b) {
 }
 
 
-int main(void) {
+int main(void){
 
     // モデルの準備
     NeuralNetwork nn;
