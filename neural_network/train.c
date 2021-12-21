@@ -74,7 +74,7 @@ void learn_dataset(NeuralNetwork *nn, char dataset[], int train_size, int test_s
     int input_size = nn->affine[0].n;
     int output_size = nn->sigmoid.len;
 
-    // データセットの準備
+    // データセットを準備する.
     // 学習データは左右を反転させて2倍にする.
 
     // メモリを確保する.
@@ -113,25 +113,39 @@ void learn_dataset(NeuralNetwork *nn, char dataset[], int train_size, int test_s
     }
     fclose(fp);
 
-    // 重みの読み込み
+    // 重みを読み込む
     if (load_file != NULL)
         nn_load_weights(nn, load_file);
 
-    // モデルの学習
+    // モデルを学習させる.
     double lr = 0.001;
     int epoch = 5;
     nn_fit(nn, X_train, y_train, 2 * train_size, X_test, y_test, test_size, lr, epoch);
 
-    // 重みの保存
+    // 重みを保存する.
     if (save_file != NULL)
         nn_save_weights(nn, save_file);
+    
+    // メモリを解放する.
+    for (int i = 0; i < 2 * train_size; i++) {
+        free(X_train[i]);
+        free(y_train[i]);
+    }
+    for (int i = 0; i < test_size; i++) {
+        free(X_test[i]);
+        free(y_test[i]);
+    }
+    free(X_train);
+    free(y_train);
+    free(X_test);
+    free(y_test);    
 }
 
 
 int main(void){
     // learn_datasetの使用例
 
-    // モデルの準備
+    // モデルを準備する.
     NeuralNetwork nn;
     int depth = 3;
     int sizes[4] = {INPUT_SIZE, 32, 32, 1};
@@ -140,6 +154,9 @@ int main(void){
 
     // モデルを学習させる.
     learn_dataset(&nn, DATASET, TRAIN_SIZE, TEST_SIZE, NULL, WEIGHTS_FILE);
+
+    // モデルを削除する.
+    nn_free(&nn);
 
     return 0;
 }
