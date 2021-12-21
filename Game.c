@@ -86,7 +86,7 @@ static void undo_action(Game *game) {
 }
 
 
-int get_all_actions_with_tfr(Game *game, Action all_actions[LEN_ACTIONS]) {
+int get_all_actions_with_tfr(const Game *game, Action all_actions[LEN_ACTIONS]) {
     // 選択可能な指手を全列挙する.
     // get_all_actionsとは異なり, 千日手も考慮して, 反則手を完全に除くものとする.
     // 手番を終えた側がすぐに負けになるような指手は反則手とみなす.
@@ -108,15 +108,15 @@ int get_all_actions_with_tfr(Game *game, Action all_actions[LEN_ACTIONS]) {
         // 先手に千日手を強いるような打ち歩詰めも削除する.
         if (is_drop_pawn_check(&game->current, tmp_actions[i])) {
             // ここら辺勝手に書き換えたけど合ってる…？
-            do_action_without_error_check(game, tmp_actions[i]);
+            do_action_without_error_check((Game *) game, tmp_actions[i]);
 
             Action next_actions[LEN_ACTIONS];
             if (get_all_actions_with_tfr(game, next_actions) == 0) {
                 // 打ち歩詰めのとき
-                undo_action(game);
+                undo_action((Game *) game);
                 continue;
             } else {
-                undo_action(game);
+                undo_action((Game *) game);
             }
         }
         all_actions[end_index++] = tmp_actions[i];
@@ -126,7 +126,7 @@ int get_all_actions_with_tfr(Game *game, Action all_actions[LEN_ACTIONS]) {
 }
 
 
-bool is_possible_action_with_tfr(Game *game, Action action) {
+bool is_possible_action_with_tfr(const Game *game, Action action) {
     // 選択可能な指手かどうかを判定する.
     // is_possible_actionとは異なり, 千日手も考慮する.
     Action all_actions[LEN_ACTIONS];
@@ -139,7 +139,7 @@ bool is_possible_action_with_tfr(Game *game, Action action) {
 }
 
 
-bool is_checkmate_with_tfr(Game *game) {
+bool is_checkmate_with_tfr(const Game *game) {
     // 詰みかどうかを判定する.
     // is_checkmateとは異なり, 千日手も考慮する.
     // 手番側に選択可能な指手があるときに0, ないときに1を返す.
@@ -224,14 +224,14 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2) {
             winner = current_player * (-1);
             break;
         }
-        
+
         // 千日手が成立するか？
         int tfr = is_threefold_repetition(game, action);
-        if (tfr){
-            if (tfr == 1 && current_player == -1){
+        if (tfr) {
+            if (tfr == 1 && current_player == -1) {
                 // 後手が千日手を決めたとき
                 winner = current_player;
-            } else if (tfr == -1){
+            } else if (tfr == -1) {
                 // 連続王手千日手が成立したとき
                 // エラー処理 (理由: 連続王手千日手は反則手であり, possible_actionではないから)
                 debug_print("error: threefold repetition with continuous check");

@@ -33,11 +33,11 @@ Game create_game();
 
 int is_threefold_repetition(const Game *game, Action action);
 
-int get_all_actions_with_tfr(Game *game, Action all_actions[LEN_ACTIONS]);
+int get_all_actions_with_tfr(const Game *game, Action all_actions[LEN_ACTIONS]);
 
-bool is_possible_action_with_tfr(Game *game, Action action);
+bool is_possible_action_with_tfr(const Game *game, Action action);
 
-bool is_checkmate_with_tfr(Game *game);
+bool is_checkmate_with_tfr(const Game *game);
 
 Action get_previous_action(const Game* game);
 
