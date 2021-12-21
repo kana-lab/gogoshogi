@@ -1,6 +1,6 @@
 #include "../Game.h"
+#include "../Board.h"
 #include "neural_network.c"
-#include "hash.c"
 
 #define INPUT_SIZE 585
 #define TRAIN_SIZE 360000
