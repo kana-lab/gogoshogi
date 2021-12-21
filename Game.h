@@ -16,6 +16,8 @@ typedef struct {      // 試合一回分を表す構造体
     int turn;         // 現在のターン
     Board *history;   // 盤面の履歴の配列(要素数はturn個), 配列は動的確保される
     int history_len;  // 履歴の長さを表す、常にturnと同一の値を取る
+
+    // 以下のメンバは内部的なものであり、使用者が意識する必要はない
     int max_turn;     // この構造体が保持できる履歴の最大数
 } Game;
 
@@ -32,9 +34,17 @@ typedef struct tagPlayerInterface {  // プレイヤーを表すインターフ�
 
 Game create_game(int max_turn);
 
-void destruct_game(Game* game);
+void destruct_game(Game *game);
 
-Game clone(const Game* game, int max_turn);
+Game clone(const Game *game, int max_turn);
+
+void do_action(Game *game, Action action);
+
+void undo_action(Game *game);
+
+int save(const Game* game);
+
+void load(Game* game, int saved_id);
 
 int is_threefold_repetition(const Game *game, Action action);
 

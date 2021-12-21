@@ -108,7 +108,7 @@ int is_threefold_repetition(const Game *game, Action action) {
 }
 
 
-static void do_action_without_error_check(Game *game, Action action) {
+void do_action(Game *game, Action action) {
     // エラーチェックをせずにactionを実行する
     // デバッグしてない
 
@@ -119,16 +119,32 @@ static void do_action_without_error_check(Game *game, Action action) {
 }
 
 
-static void undo_action(Game *game) {
+void undo_action(Game *game) {
     // ゲームを1ターン戻す
     // デバッグしてない
 
     if (game->history_len < 2)
         return;
-    game->current = game->history[game->history_len - 2];
+    load(game, game->history_len - 1);
+}
+
+
+int save(const Game *game) {
+    // gameの現在の状態をセーブしておき、あとで復元するためのIDを返す
+    // 未来の状態には戻れない
+
+    return game->history_len;
+}
+
+
+void load(Game *game, int saved_id) {
+    // セーブしておいたIDをもとに、状態を復元する
+
+    assert(game->history_len < saved_id);
+    game->current = game->history[saved_id - 1];
     reverse_board(&game->current);
-    --game->history_len;
-    --game->turn;
+    game->history_len = saved_id;
+    game->turn = saved_id;
 }
 
 
@@ -154,7 +170,7 @@ int get_all_actions_with_tfr(const Game *game, Action all_actions[LEN_ACTIONS]) 
         // 先手に千日手を強いるような打ち歩詰めも削除する.
         if (is_drop_pawn_check(&game->current, tmp_actions[i])) {
             // ここら辺勝手に書き換えたけど合ってる…？
-            do_action_without_error_check((Game *) game, tmp_actions[i]);
+            do_action((Game *) game, tmp_actions[i]);
 
             Action next_actions[LEN_ACTIONS];
             if (get_all_actions_with_tfr(game, next_actions) == 0) {
@@ -292,7 +308,7 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2) {
         }
 
         // 実際に駒を動かす
-        do_action_without_error_check(game, action);
+        do_action(game, action);
     }
 
     return winner;
