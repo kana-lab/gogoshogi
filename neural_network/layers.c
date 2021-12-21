@@ -21,6 +21,11 @@ void relu_init(ReluLayer *layer, int len){
     layer->out = malloc(len * sizeof(double));
 }
 
+void relu_free(ReluLayer *layer){
+    // ReluLayerに割り当てたメモリを解放する.
+    free(layer->out);
+}
+
 void relu_forward(ReluLayer *layer, const double x[]){
     // 入力xを受け取って, outに結果を出力する.
     // x -- ReluLayer --> out
@@ -58,6 +63,12 @@ void sigmoid_init(SigmoidLayer *layer, int len){
     layer->len = len;
     layer->out = malloc(len * sizeof(double));
     layer->dout = malloc(len * sizeof(double));
+}
+
+void sigmoid_free(SigmoidLayer *layer){
+    // SigmoidLayerに割り当てたメモリを解放する.
+    free(layer->out);
+    free(layer->dout);
 }
 
 void sigmoid_forward(SigmoidLayer *layer, const double x[]){
@@ -102,6 +113,16 @@ void affine_init(AffineLayer *layer, int n, int m){
     layer->out = malloc(m * sizeof(double));
     layer->dw = malloc(m*n * sizeof(double));
     layer->db = malloc(m * sizeof(double));
+}
+
+void affine_free(AffineLayer *layer){
+    // AffineLayerに割り当てたメモリを解放する.
+    free(layer->w);
+    free(layer->b);
+    free(layer->x);
+    free(layer->out);
+    free(layer->dw);
+    free(layer->db);
 }
 
 void affine_init_with_xavier(AffineLayer *layer, int n, int m){
@@ -159,6 +180,14 @@ void velocities_init(Velocities *v, const AffineLayer *layer){
     v->bv = calloc(layer->m, sizeof(double));
     v->ws = calloc(layer->m*layer->n, sizeof(double));
     v->bs = calloc(layer->m, sizeof(double));
+}
+
+void velocities_free(Velocities *v){
+    // Velocitiesに割り当てたメモリを解放する.
+    free(v->wv);
+    free(v->bv);
+    free(v->ws);
+    free(v->bs);
 }
 
 
