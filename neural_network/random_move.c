@@ -1,5 +1,4 @@
 #include "../Game.h"
-#include "hash.c"
 
 #include <stdio.h>
 
