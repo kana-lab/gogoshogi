@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "../Game.h"
 #include "hash.c"
 
 #include <stdio.h>
