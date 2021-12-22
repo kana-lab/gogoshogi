@@ -463,7 +463,7 @@ bool is_drop_pawn_check(const Board *b, Action action) {
 }
 
 
-static bool is_useful(const Board *b, const Action *action) {
+bool is_useful(const Board *b, const Action *action) {
     /*
     actionが有用かどうかを簡単に判定する.
     飛や角が成れるのに成らない指手のみに対し0を返す.
