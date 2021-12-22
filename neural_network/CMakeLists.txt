@@ -9,6 +9,7 @@ add_executable(
         ../Action.c
         ../Board.c
         ../Game.c
-        ../gamedef.c)
+        ../gamedef.c
+        ../Hash.c)
 
 target_link_libraries(nn_main PRIVATE m)
