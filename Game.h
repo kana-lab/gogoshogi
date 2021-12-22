@@ -7,6 +7,8 @@
 #include "Action.h"
 #include "Hash.h"
 
+#define MALLOC_MARGIN 8  // mallocで動的確保する時にどれだけ余裕を持って確保するか？
+
 
 /*********************************
  * Gameクラスの定義

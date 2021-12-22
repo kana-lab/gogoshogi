@@ -9,8 +9,8 @@ Game create_game(int max_turn) {
     // max_turnは保持する履歴の数
 
     // history配列, is_checking_history配列の動的確保, 確保に失敗したらエラー
-    Hash *history = (Hash *) malloc(max_turn * sizeof(Hash));
-    bool *is_checking_history = (bool *) malloc(max_turn * sizeof(bool));
+    Hash *history = (Hash *) malloc((max_turn + MALLOC_MARGIN) * sizeof(Hash));
+    bool *is_checking_history = (bool *) malloc((max_turn + MALLOC_MARGIN) * sizeof(bool));
     assert(history != NULL);
     assert(is_checking_history != NULL);
 
@@ -52,8 +52,8 @@ Game clone(const Game *game, int max_turn) {
     game_copy.max_turn = max_turn;
 
     // history配列, is_checking_history配列の動的確保, 確保に失敗したらエラー
-    Hash *history = (Hash *) malloc(max_turn * sizeof(Hash));
-    bool *is_checking_history = (bool *) malloc(max_turn * sizeof(bool));
+    Hash *history = (Hash *) malloc((max_turn + MALLOC_MARGIN) * sizeof(Hash));
+    bool *is_checking_history = (bool *) malloc((max_turn + MALLOC_MARGIN) * sizeof(bool));
     assert(history != NULL);
     assert(is_checking_history != NULL);
 
@@ -178,7 +178,7 @@ int save(const Game *game) {
 void load(Game *game, int saved_id) {
     // セーブしておいたIDをもとに、状態を復元する
 
-    assert(game->history_len < saved_id);
+    assert(game->history_len > saved_id);
     Hash h = reverse_hash(game->history[saved_id - 1]);
     game->current = decode(h);
     game->history_len = saved_id;
