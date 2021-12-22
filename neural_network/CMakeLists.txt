@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(
         nn_main
-        train.c
+        nn_main.c
         ../Action.c
         ../Board.c
         ../Game.c
