@@ -38,18 +38,18 @@ void save_checkmate_board(Game *game, bool hash_table[HASH_MOD]) {
 }
 
 
-void save_initial_board(Game *game){
-    
+void save_initial_board(Game *game) {
+
 }
 
 
-void create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset_save_file[], int epoch){
+void create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset_save_file[], int epoch) {
     // firstとsecondで対戦を行い, 学習データを生成する.
 
     int first_win_count = 0;
     bool *hash_table = calloc(HASH_MOD, sizeof(bool));
 
-    for (int i = 0; i < epoch; i++){
+    for (int i = 0; i < epoch; i++) {
         // 初期化済みのゲームクラスを作る.
         Game game = create_game(MAX_TURN);
 
@@ -62,10 +62,10 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
         // 勝利回数を記録する.
         if (winner == 1)
             first_win_count++;
-        
+
         // gameを削除する.
         destruct_game(&game);
     }
 
-    debug_print("The first move has a %d%% chance of winning.", (double)first_win_count/(double)epoch);
+    debug_print("The first move has a %lf%% chance of winning.", (double) first_win_count * 100 / epoch);
 }
