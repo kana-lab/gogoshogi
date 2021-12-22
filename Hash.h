@@ -28,4 +28,5 @@ Hash reverse_hash(Hash h);
 
 bool hash_equal(Hash h1, Hash h2);
 
+
 #endif  /* HASH_H */

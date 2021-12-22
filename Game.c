@@ -149,7 +149,7 @@ void do_action(Game *game, Action action) {
     // デバッグしてない
 
     update_board(&game->current, action);
-    game->is_checking_history[game->history_len]=is_checking(&game->current);
+    game->is_checking_history[game->history_len] = is_checking(&game->current);
     game->history[game->history_len] = encode(&game->current);
     reverse_board(&game->current);
     ++game->history_len;
