@@ -69,18 +69,11 @@ int get_hash_mod(const Hash *h) {
 
 
 void save_board(Game *game, bool hash_table[HASH_MOD]) {
-    // gameが, hash_tableとhashが衝突しないときにgameをdatasetに保存する.
+    // hash_tableとhashが衝突しないときに, gameをdatasetに保存する.
     FILE *fp = fopen(DATASET, "a");
-//    Board win_board = game->history[game->history_len - 2];
-//    Board lose_board = game->history[game->history_len - 1];
-//    reverse_board(&win_board);
-//    reverse_board(&lose_board);
-//    print_board_for_debug(&win_board);
-//    print_board_for_debug(&lose_board);
-//    Hash win_hash = encode(&win_board);
-//    Hash lose_hash = encode(&lose_board);
     Hash win_hash = reverse_hash(game->history[game->history_len - 2]);
     Hash lose_hash = reverse_hash(game->history[game->history_len - 1]);
+    Board lose_board = decode(lose_hash);
     if (is_checkmate(&lose_board)) {
         if (hash_table[get_hash_mod(&win_hash)]) {
             if (hash_table[get_hash_mod(&lose_hash)]) {
