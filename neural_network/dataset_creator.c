@@ -1,5 +1,6 @@
 #include "../Game.h"
 #include "../Board.h"
+#include "random_move.c"
 
 #include <stdio.h>
 
@@ -17,8 +18,8 @@ int get_hash_mod(const Hash *h) {
 }
 
 
-void save_board(Game *game, bool hash_table[HASH_MOD]) {
-    // gameが, hash_tableとhashが衝突しないときにgameをdatasetに保存する.
+void save_checkmate_board(Game *game, bool hash_table[HASH_MOD]) {
+    // hash_tableとhashが衝突しないときに, gameをdatasetに保存する.
     FILE *fp = fopen(DATASET, "a");
     Hash win_hash = reverse_hash(game->history[game->history_len - 2]);
     Hash lose_hash = reverse_hash(game->history[game->history_len - 1]);
@@ -34,4 +35,37 @@ void save_board(Game *game, bool hash_table[HASH_MOD]) {
         }
     }
     fclose(fp);
+}
+
+
+void save_initial_board(Game *game){
+    
+}
+
+
+void dataset_creator(PlayerInterface *first, PlayerInterface *second, char dataset_save_file[], int epoch){
+    // firstとsecondで対戦を行い, 学習データを生成する.
+
+    int first_win_count = 0;
+    bool *hash_table = calloc(HASH_MOD, sizeof(bool));
+
+    for (int i = 0; i < epoch; i++){
+        // 初期化済みのゲームクラスを作る.
+        Game game = create_game(MAX_TURN);
+
+        // 対戦を行う.
+        int winner = play(&game, first, second);
+
+        // 盤面を保存する.
+        save_checkmate_board(&game, hash_table);
+
+        // 勝利回数を記録する.
+        if (winner == 1)
+            first_win_count++;
+        
+        // gameを削除する.
+        destruct_game(&game);
+    }
+
+    debug_print("The first move has a %d%% chance of winning.", (double)first_win_count/(double)epoch);
 }
