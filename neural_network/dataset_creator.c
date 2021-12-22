@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 #define HASH_MOD 9999991 // 10^7以下の最大素数
-#define DATASET "checkmates.txt"
 
 
 /*
@@ -18,9 +17,9 @@ int get_hash_mod(const Hash *h) {
 }
 
 
-void save_checkmate_board(Game *game, bool hash_table[HASH_MOD]) {
+void save_checkmate_board(Game *game, bool hash_table[HASH_MOD], char dataset[]) {
     // hash_tableとhashが衝突しないときに, gameをdatasetに保存する.
-    FILE *fp = fopen(DATASET, "a");
+    FILE *fp = fopen(dataset, "a");
     Hash win_hash = reverse_hash(game->history[game->history_len - 2]);
     Hash lose_hash = reverse_hash(game->history[game->history_len - 1]);
     Board lose_board = decode(lose_hash);
@@ -38,7 +37,7 @@ void save_checkmate_board(Game *game, bool hash_table[HASH_MOD]) {
 }
 
 
-void save_initial_board(Game *game) {
+void save_initial_board(Game *game, bool hash_table[HASH_MOD]) {
 
 }
 
@@ -57,7 +56,7 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
         int winner = play(&game, first, second);
 
         // 盤面を保存する.
-        save_checkmate_board(&game, hash_table);
+        save_checkmate_board(&game, hash_table, dataset_save_file);
 
         // 勝利回数を記録する.
         if (winner == 1)
