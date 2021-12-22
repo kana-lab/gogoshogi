@@ -60,7 +60,6 @@ Action random_move_ai(const Game *game) {
 
 
 // random_move_aiのPlayerInterfaceクラスのものを作る.
-// よくわからないのでmain.cのものを流用した.
 
 
 // PlayerInterfaceクラスを継承
