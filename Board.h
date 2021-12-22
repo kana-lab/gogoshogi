@@ -17,11 +17,6 @@ typedef struct {            // 盤面を(持ち駒とセットで)入れてお�
     int previous_stock[6];  // 手番ではない方の持ち駒
 } Board;
 
-typedef struct {               // 96bitのハッシュを入れる構造体
-    unsigned long long lower;  // lowerには下位の64bitを入れる
-    unsigned long long upper;  // upperには上位の32bitを入れる
-} Hash;
-
 
 /*********************************
  * Boardクラスのメソッド
@@ -54,11 +49,6 @@ int get_useful_actions(const Board *b, Action actions[LEN_ACTIONS]);
 void count_connections(const Board *b, double counts[5][5]);
 
 Action delta_of(const Board *before, const Board *after);
-
-Hash encode(const Board *b);
-
-// static method
-Board decode(Hash h);
 
 
 #endif  /* BOARD_H */
