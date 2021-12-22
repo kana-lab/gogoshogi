@@ -66,17 +66,13 @@ Action random_move_ai(const Game *game) {
 // PlayerInterfaceクラスを継承
 typedef struct tagAI {
     Action (*get_action)(struct tagAI *self, const Game *game);
-
-    char buf[32];
 } AI;
 
 
 Action get_random_move_ai_action(AI *self, const Game *game) {
-    Game *game_hack = (Game *) game;
-    game_hack->turn++;
-    Action result = random_move_ai(game_hack);
-    game_hack->turn--;
-    return result;
+    debug_print("turn: %d", game->turn);
+    debug_print("history_len: %d", game->history_len);
+    return random_move_ai(game);
 }
 
 
