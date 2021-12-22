@@ -54,7 +54,7 @@ Action choose_random_action(const Action actions[], int len_actions) {
 Action random_move_ai(const Game *game) {
     // 動かす駒がランダムなAI
     Action all_actions[LEN_ACTIONS];
-    int len_all_actions = get_all_actions_with_tfr(game, all_actions);
+    int len_all_actions = get_useful_actions_with_tfr(game, all_actions);
     return choose_random_action(all_actions, len_all_actions);
 }
 
