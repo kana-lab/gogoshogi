@@ -1,6 +1,6 @@
 #include "dataset_creator.c"
 
-#define DATASET "checkmates.txt"
+#define DATASET "initial_boards.txt"
 
 
 int main(void){
@@ -10,7 +10,7 @@ int main(void){
     AI second = create_random_move_ai();
 
     // データセットを作成する.
-    create_dataset((PlayerInterface *) &first, (PlayerInterface *) &second, DATASET, 1000);
+    create_dataset((PlayerInterface *) &first, (PlayerInterface *) &second, DATASET, 10);
 
     return 0;
 }
