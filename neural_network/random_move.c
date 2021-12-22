@@ -1,7 +1,6 @@
 #include "../Game.h"
 #include "../Board.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 
 
