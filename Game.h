@@ -61,6 +61,8 @@ bool is_possible_action_with_tfr(const Game *game, Action action);
 
 bool is_checkmate_with_tfr(const Game *game);
 
+int get_useful_actions_with_tfr(const Game *game, Action actions[LEN_ACTIONS]);
+
 Action get_previous_action(const Game *game);
 
 int play(Game *game, PlayerInterface *player1, PlayerInterface *player2);
