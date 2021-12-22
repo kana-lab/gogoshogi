@@ -3,13 +3,14 @@
 #include "neural_network.c"
 
 #define INPUT_SIZE 585
+/*
 #define TRAIN_SIZE 360000
 #define TEST_SIZE 96554
 #define DATASET "checkmates456554.txt"
 #define WEIGHTS_FILE "weights585.txt"
 
 #define LEN_ARRAY(a) ((sizeof(a)) / (sizeof(a[0])))
-
+*/
 
 /*
 ニューラルネットワークの学習を行う.
@@ -150,7 +151,7 @@ double nn_evaluate(NeuralNetwork *nn, const Board *b){
     return nn->sigmoid.out[0];
 }
 
-
+/*
 int main(void){
     // learn_datasetの使用例
 
@@ -169,3 +170,4 @@ int main(void){
 
     return 0;
 }
+*/
