@@ -57,3 +57,31 @@ Action random_move_ai(const Game *game) {
     int len_all_actions = get_all_actions_with_tfr(game, all_actions);
     return choose_random_action(all_actions, len_all_actions);
 }
+
+
+// random_move_aiのPlayerInterfaceクラスのものを作る.
+// よくわからないのでmain.cのものを流用した.
+
+
+// PlayerInterfaceクラスを継承
+typedef struct tagAI {
+    Action (*get_action)(struct tagAI *self, const Game *game);
+
+    char buf[32];
+} AI;
+
+
+Action get_random_move_ai_action(AI *self, const Game *game) {
+    Game *game_hack = (Game *) game;
+    game_hack->turn++;
+    Action result = random_move_ai(game_hack);
+    game_hack->turn--;
+    return result;
+}
+
+
+AI create_random_move_ai() {
+    return (AI) {
+            .get_action=get_random_move_ai_action,
+    };
+}
