@@ -37,15 +37,29 @@ void save_checkmate_board(Game *game, bool hash_table[HASH_MOD], char dataset[])
 }
 
 
-void save_initial_board(Game *game, bool hash_table[HASH_MOD]) {
-
+void save_initial_board(Game *game, bool hash_table[HASH_MOD], char dataset[]) {
+    // hash_tableとhashが衝突しないときに, gameをdatasetに保存する.
+    // 最初の10手に制限した局面を保存する.
+    int save_max_turn = 10;
+    FILE *fp = fopen(dataset, "a");
+    for (int i = 0; i < save_max_turn; i++) {
+        if (i == game->history_len)
+            // iがgame->historyのindexを超えないようにする.
+            break;
+        Hash h = reverse_hash(game->history[i]);
+        if (!hash_table[get_hash_mod(&h)]) {
+            fprintf(fp, "%llu %llu\n", h.lower, h.upper);
+            hash_table[get_hash_mod(&h)] = true;
+        }
+    }
+    fclose(fp);
 }
 
 
 void create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset_save_file[], int epoch) {
     // firstとsecondで対戦を行い, 学習データを生成する.
 
-    int first_win_count = 0;
+    int results_count[3] = {0, 0, 0};
     bool *hash_table = calloc(HASH_MOD, sizeof(bool));
 
     for (int i = 0; i < epoch; i++) {
@@ -56,15 +70,17 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
         int winner = play(&game, first, second);
 
         // 盤面を保存する.
-        save_checkmate_board(&game, hash_table, dataset_save_file);
+        //save_checkmate_board(&game, hash_table, dataset_save_file);
+        save_initial_board(&game, hash_table, dataset_save_file);
 
         // 勝利回数を記録する.
-        if (winner == 1)
-            first_win_count++;
+        results_count[winner+1]++;
 
         // gameを削除する.
         destruct_game(&game);
     }
 
-    debug_print("The first move has a %lf%% chance of winning.", (double) first_win_count * 100 / epoch);
+    debug_print("first win : %lf%%", (double) results_count[2] * 100.0 / epoch);
+    debug_print("second win: %lf%%", (double) results_count[0] * 100.0 / epoch);
+    debug_print("draw      : %lf%%", (double) results_count[1] * 100.0 / epoch);
 }
