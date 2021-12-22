@@ -42,6 +42,8 @@ bool is_possible_action(const Board *b, Action action);
 
 bool is_drop_pawn_check(const Board *b, Action action);
 
+bool is_useful(const Board *b, const Action *action);
+
 int get_all_actions(const Board *b, Action all_actions[LEN_ACTIONS]);
 
 int get_useful_actions(const Board *b, Action actions[LEN_ACTIONS]);
