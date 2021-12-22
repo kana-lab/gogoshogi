@@ -60,6 +60,7 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
     // firstとsecondで対戦を行い, 学習データを生成する.
 
     int results_count[3] = {0, 0, 0};
+    int sum_history_len = 0;
     bool *hash_table = calloc(HASH_MOD, sizeof(bool));
 
     for (int i = 0; i < epoch; i++) {
@@ -73,8 +74,9 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
         //save_checkmate_board(&game, hash_table, dataset_save_file);
         save_initial_board(&game, hash_table, dataset_save_file);
 
-        // 勝利回数を記録する.
+        // 勝利回数などを記録する.
         results_count[winner+1]++;
+        sum_history_len += game.history_len;
 
         // gameを削除する.
         destruct_game(&game);
@@ -83,4 +85,5 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
     debug_print("first win : %lf%%", (double) results_count[2] * 100.0 / epoch);
     debug_print("second win: %lf%%", (double) results_count[0] * 100.0 / epoch);
     debug_print("draw      : %lf%%", (double) results_count[1] * 100.0 / epoch);
+    debug_print("average finish turn: %lf", (double) sum_history_len / epoch);
 }
