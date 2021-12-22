@@ -5,7 +5,7 @@
 #include "gamedef.h"
 #include "Board.h"
 #include "Action.h"
-
+#include "Hash.h"
 
 /*********************************
  * Gameクラスの定義
@@ -14,10 +14,12 @@
 typedef struct {      // 試合一回分を表す構造体
     Board current;    // 現在の盤面
     int turn;         // 現在のターン
-    Board *history;   // 盤面の履歴の配列(要素数はturn個), 配列は動的確保される
+    Hash *history;    // 盤面の履歴の配列(要素数はturn個), 配列は動的確保される
     int history_len;  // 履歴の長さを表す、常にturnと同一の値を取る
 
-    // 以下のメンバは内部的なものであり、使用者が意識する必要はない
+    // 以下のメンバは内部的なもの(プライベート)であり、使用者が意識する必要はない
+    // Game構造体はアドレス渡しが主なので、以下がオーバーヘッドになる事はない
+    bool *is_checking_history;  // 各履歴が王手状態にあるか否かを保持する動的配列
     int max_turn;     // この構造体が保持できる履歴の最大数
 } Game;
 
@@ -42,11 +44,13 @@ void do_action(Game *game, Action action);
 
 void undo_action(Game *game);
 
-int save(const Game* game);
+int save(const Game *game);
 
-void load(Game* game, int saved_id);
+void load(Game *game, int saved_id);
 
 int is_threefold_repetition(const Game *game, Action action);
+
+int is_threefold_repetition_2(const Game *game);
 
 int get_all_actions_with_tfr(const Game *game, Action all_actions[LEN_ACTIONS]);
 

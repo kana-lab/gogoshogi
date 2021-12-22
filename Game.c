@@ -8,23 +8,24 @@ Game create_game(int max_turn) {
     // Game型の変数を作るコンストラクタ
     // max_turnは保持する履歴の数
 
-    // history配列の動的確保, 確保に失敗したらエラー
-    Board *history = (Board *) malloc(max_turn * sizeof(Board));
+    // history配列, is_checking_history配列の動的確保, 確保に失敗したらエラー
+    Hash *history = (Hash *) malloc(max_turn * sizeof(Hash));
+    bool *is_checking_history = (bool *) malloc(max_turn * sizeof(bool));
     assert(history != NULL);
+    assert(is_checking_history != NULL);
 
     // 初期盤面の生成
     Board b = create_board();
 
     // 履歴に初期盤面を追加
-    Board b_rev = b;
-    reverse_board(&b_rev);
-    history[0] = b_rev;
+    history[0] = reverse_hash(encode(&b));
 
     return (Game) {
             .current=b,
             .turn=1,
             .history=history,
             .history_len=1,
+            .is_checking_history=is_checking_history,
             .max_turn=max_turn
     };
 }
@@ -35,6 +36,7 @@ void destruct_game(Game *game) {
     // 動的確保したメモリの解放を行う
 
     free(game->history);
+    free(game->is_checking_history);
 }
 
 
@@ -49,15 +51,20 @@ Game clone(const Game *game, int max_turn) {
     Game game_copy = *game;
     game_copy.max_turn = max_turn;
 
-    // history配列の動的確保, 確保に失敗したらエラー
-    Board *history = (Board *) malloc(max_turn * sizeof(Board));
+    // history配列, is_checking_history配列の動的確保, 確保に失敗したらエラー
+    Hash *history = (Hash *) malloc(max_turn * sizeof(Hash));
+    bool *is_checking_history = (bool *) malloc(max_turn * sizeof(bool));
     assert(history != NULL);
+    assert(is_checking_history != NULL);
 
-    // history配列のコピー
-    for (int i = 0; i < game->history_len; ++i)
+    // history配列, is_checking_history配列のコピー
+    for (int i = 0; i < game->history_len; ++i) {
         history[i] = game->history[i];
+        is_checking_history[i] = game->is_checking_history[i];
+    }
 
     game_copy.history = history;
+    game_copy.is_checking_history = is_checking_history;
 
     return game_copy;
 }
@@ -74,11 +81,12 @@ int is_threefold_repetition(const Game *game, Action action) {
 
     Board b = game->current;
     update_board(&b, action);
+    Hash h = encode(&b);
 
     // 「次に打つプレイヤー」も含めて局面の一致を判定するため、自分の手番のみを見れば良い
     // よって i -= 2 としている
     for (int i = game->history_len - 2; i >= 0; i -= 2) {
-        if (board_equal(&b, &game->history[i])) {
+        if (hash_equal(h, game->history[i])) {
             ++repetition_count;
             first_duplication_index = i;
         }
@@ -95,7 +103,35 @@ int is_threefold_repetition(const Game *game, Action action) {
 
         int continuous_check = 1;
         for (int i = first_duplication_index; i < game->history_len; i += 2) {
-            if (!is_checking(&game->history[i])) {
+            if (!game->is_checking_history[i]) {
+                continuous_check = 0;
+                break;
+            }
+        }
+
+        return (continuous_check) ? -1 : 1;
+    }
+
+    return 0;
+}
+
+
+int is_threefold_repetition_2(const Game *game) {
+    int repetition_count = 0;
+    int first_duplication_index = 0;
+
+    Hash h = game->history[game->history_len - 1];
+    for (int i = game->history_len - 3; i >= 0; i -= 2) {
+        if (hash_equal(h, game->history[i])) {
+            ++repetition_count;
+            first_duplication_index = i;
+        }
+    }
+
+    if (repetition_count >= 3) {
+        int continuous_check = 1;
+        for (int i = first_duplication_index; i < game->history_len; i += 2) {
+            if (!game->is_checking_history[i]) {
                 continuous_check = 0;
                 break;
             }
@@ -113,8 +149,10 @@ void do_action(Game *game, Action action) {
     // デバッグしてない
 
     update_board(&game->current, action);
-    game->history[game->history_len++] = game->current;
+    game->is_checking_history[game->history_len]=is_checking(&game->current);
+    game->history[game->history_len] = encode(&game->current);
     reverse_board(&game->current);
+    ++game->history_len;
     ++game->turn;
 }
 
@@ -141,8 +179,8 @@ void load(Game *game, int saved_id) {
     // セーブしておいたIDをもとに、状態を復元する
 
     assert(game->history_len < saved_id);
-    game->current = game->history[saved_id - 1];
-    reverse_board(&game->current);
+    Hash h = reverse_hash(game->history[saved_id - 1]);
+    game->current = decode(h);
     game->history_len = saved_id;
     game->turn = saved_id;
 }
@@ -243,7 +281,7 @@ Action get_previous_action(const Game *game) {
     if (game->history_len < 2)
         return (Action) {};
 
-    Board previous = game->history[game->history_len - 2];
+    Board previous = decode(game->history[game->history_len - 2]);
     reverse_board(&previous);
     Board current = game->current;
     reverse_board(&current);
