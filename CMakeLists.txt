@@ -13,4 +13,6 @@ add_executable(
         Game.c
         Game.h
         gamedef.c
-        gamedef.h)
+        gamedef.h
+        Hash.c
+        Hash.h)
