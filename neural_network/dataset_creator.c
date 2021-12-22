@@ -43,7 +43,7 @@ void save_initial_board(Game *game){
 }
 
 
-void dataset_creator(PlayerInterface *first, PlayerInterface *second, char dataset_save_file[], int epoch){
+void create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset_save_file[], int epoch){
     // firstとsecondで対戦を行い, 学習データを生成する.
 
     int first_win_count = 0;
