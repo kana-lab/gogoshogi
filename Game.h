@@ -65,7 +65,7 @@ int get_useful_actions_with_tfr(const Game *game, Action actions[LEN_ACTIONS]);
 
 Action get_previous_action(const Game *game);
 
-int play(Game *game, PlayerInterface *player1, PlayerInterface *player2);
+int play(Game *game, PlayerInterface *player1, PlayerInterface *player2, bool debug);
 
 
 #endif  /* GAME_H */

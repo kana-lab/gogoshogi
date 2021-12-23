@@ -330,7 +330,7 @@ Action get_previous_action(const Game *game) {
 }
 
 
-int play(Game *game, PlayerInterface *player1, PlayerInterface *player2) {
+int play(Game *game, PlayerInterface *player1, PlayerInterface *player2, bool debug) {
     // player1を先手、player2を後手としてゲームを行う
     // 先手が勝った場合は1を、後手が勝った場合は-1を返し、引き分けの場合は0を返す
     // AIが指した手の標準出力へのプリントは行われないことに注意
@@ -338,14 +338,20 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2) {
     int winner = 0;
     while (game->turn <= game->max_turn) {  // 150手以内
         // デバッグプリント
-        print_board_for_debug(&game->current);
-        print_all_actions_for_debug(game);
+        if (debug) {
+            Board b = game->current;
+            if (game->turn % 2 == 0)
+                reverse_board(&b);
+            print_board_for_debug(&b);
+            print_all_actions_for_debug(game);
+        }
 
         int current_player = (game->turn % 2) ? 1 : -1;
 
         // まず、詰みかどうかをチェックする
         if (is_checkmate_with_tfr(game)) {
-            debug_print("checkmate.");
+            if (debug)
+                debug_print("checkmate.");
             winner = current_player * (-1);
             break;
         }
