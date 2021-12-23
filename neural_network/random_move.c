@@ -69,8 +69,6 @@ typedef struct tagAI {
 
 
 Action get_random_move_ai_action(AI *self, const Game *game) {
-    debug_print("turn: %d", game->turn);
-    debug_print("history_len: %d", game->history_len);
     return random_move_ai(game);
 }
 
