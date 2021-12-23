@@ -81,17 +81,12 @@ double nn_predict(NeuralNetwork *nn, const double x[], const double y[], double 
     /*
     NeuralNetworkに1つの入力を与えて学習させる.
     入力がx, 正解がyになるようにする.
-    ただし, y == NULL のときは予測のみを行う.
     また, lr == 0.0 のときは誤差逆伝播を行わない.
     二乗和誤差を返す.
     */
     
     // 正解を予想する.
     nn_forward(nn, x);
-
-    if (y == NULL)
-        // 答えがないとき
-        return 0.0;
     
     // 誤差を求める.
     double res = sse(nn->sigmoid.out, y, nn->sigmoid.dout, nn->sigmoid.len);
