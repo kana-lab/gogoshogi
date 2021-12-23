@@ -200,8 +200,8 @@ int main(void){
 
     int train_size = 3600;//360000
     int test_size = 96554;//96554
-    char load_file[] = "nn_585.txt";
-    char save_file[] = "nn_585.txt";
+    char *load_file = "nn_585_64x2_0.txt";
+    char *save_file = NULL;
 
     learn_dataset("checkmates456554.txt", train_size, test_size, load_file, save_file);
 
