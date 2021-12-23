@@ -58,13 +58,30 @@ void save_initial_board(Game *game, bool hash_table[HASH_MOD], char dataset[]) {
 }
 
 
-void save_self_match_dataset(Game *game, PlayerInterface *player, char dataset[]) {
+void save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
     // 自己対戦の結果からデータセットを作成する.
+    // 強化学習におけるモンテカルロ法のQ値更新方法を参考にした.
+    double alpha = 0.9;
+    FILE *fp = fopen(dataset, "a");
+
+    double q = 0.0;
+
+    for (int i = game->history_len-1; 0 <= i; i++) {
+        Hash h = reverse_hash(game->history[i]);
+        fprintf(fp, "%llu %llu %lf\n", h.lower, h.upper, q);
+        Board b = decode(h);
+        q = (1.0-alpha)*nn_evaluate(&player->nn, &b) + alpha*(1.0-q);
+    }
+    fclose(fp);
 }
 
 
 void create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset_save_file[], int epoch, char dataset_mode[]) {
     // firstとsecondで対戦を行い, 学習データを生成する.
+
+    // dataset_save_fileの中身を削除する.
+    FILE *fp = fopen(dataset_save_file, "w");
+    fclose(fp);
 
     int results_count[3] = {0, 0, 0};
     int sum_history_len = 0;
@@ -83,7 +100,7 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
         else if (strcmp(dataset_mode, "initial") == 0)
             save_initial_board(&game, hash_table, dataset_save_file);
         else if (strcmp(dataset_mode, "self_match") == 0)
-            save_self_match_dataset(&game, first, dataset_save_file);
+            save_self_match_dataset(&game, (NNAI*) first, dataset_save_file);
         else
             debug_print("error; unknown dataset_mode");
 
