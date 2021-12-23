@@ -151,6 +151,50 @@ double nn_evaluate(NeuralNetwork *nn, const Board *b){
     return nn->sigmoid.out[0];
 }
 
+
+// random_move_aiのPlayerInterfaceクラスのものを作る.
+
+
+// PlayerInterfaceクラスを継承
+typedef struct tagAI {
+    Action (*get_action)(struct tagAI *self, const Game *game);
+    NeuralNetwork nn;
+} AI;
+
+
+Action get_read1_ai_action(AI *self, const Game *game) {
+
+    // 1手先の局面の(相手にとっての)評価値が最も低くなるような指手を返す.
+    Action all_actions[LEN_ACTIONS];
+    int len_all_actions = get_useful_actions_with_tfr(game, all_actions);
+
+    int best_action = 0;
+    int min_evaluation = 1.0;
+    for (int i = 0; i < len_all_actions; i++) {
+        do_action((Game *) game, all_actions[i]);
+        int evaluation = nn_evaluate(&self->nn, &game->current);
+        undo_action((Game *) game);
+        if (evaluation < min_evaluation) {
+            best_action = i;
+            min_evaluation = evaluation;
+        }
+    }
+
+    debug_print("turn: %d", game->turn);
+    debug_print("history_len: %d", game->history_len);
+
+    return all_actions[best_action];
+}
+
+
+AI create_read1_ai(char load_file_name[]) {
+    AI ai;
+    ai.get_action = get_read1_ai_action;
+    nn_load_model(&ai.nn, load_file_name);
+    return ai;
+}
+
+
 /*
 int main(void){
     // learn_datasetの使用例
