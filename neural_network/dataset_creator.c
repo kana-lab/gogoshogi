@@ -66,7 +66,7 @@ void save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
 
     double q = 0.0;
 
-    for (int i = game->history_len-1; 0 <= i; i++) {
+    for (int i = game->history_len-1; 0 <= i; i--) {
         Hash h = reverse_hash(game->history[i]);
         fprintf(fp, "%llu %llu %lf\n", h.lower, h.upper, q);
         Board b = decode(h);
