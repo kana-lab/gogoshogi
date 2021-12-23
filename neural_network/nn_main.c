@@ -1,16 +1,11 @@
 #include "dataset_creator.c"
 
-#define DATASET "self_match.txt"
+#define MODEL_FILE "nn_585_32x2_1.txt"
 
 
 int main(void){
     
-    // プレイヤーを初期化する.
-    NNAI first = create_read1_ai("nn_585_32x2_0.txt");
-    NNAI second = create_read1_ai("nn_585_32x2_0.txt");
-
-    // データセットを作成する.
-    create_dataset((PlayerInterface *) &first, (PlayerInterface *) &second, DATASET, 1, "self_match");
+    self_match_learning(MODEL_FILE, 100);
 
     return 0;
 }
