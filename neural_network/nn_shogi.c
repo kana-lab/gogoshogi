@@ -194,7 +194,7 @@ NNAI create_read1_ai(char load_file_name[]) {
     return ai;
 }
 
-
+/*
 int main(void){
     // learn_datasetの使用例
 
@@ -207,3 +207,4 @@ int main(void){
 
     return 0;
 }
+*/
