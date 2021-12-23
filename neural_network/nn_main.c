@@ -1,5 +1,4 @@
 #include "dataset_creator.c"
-#include "nn_shogi.c"
 
 #define DATASET "self_match.txt"
 
