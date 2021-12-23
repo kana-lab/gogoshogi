@@ -2,6 +2,7 @@
 #define ACTION_H
 
 
+#include <stdbool.h>
 #include "gamedef.h"
 
 
