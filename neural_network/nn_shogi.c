@@ -152,17 +152,17 @@ double nn_evaluate(NeuralNetwork *nn, const Board *b){
 }
 
 
-// random_move_aiのPlayerInterfaceクラスのものを作る.
+// NeuralNetworkを用いるPlayerInterfaceクラスのものを作る.
 
 
 // PlayerInterfaceクラスを継承
-typedef struct tagAI {
-    Action (*get_action)(struct tagAI *self, const Game *game);
+typedef struct tagNNAI {
+    Action (*get_action)(struct tagNNAI *self, const Game *game);
     NeuralNetwork nn;
-} AI;
+} NNAI;
 
 
-Action get_read1_ai_action(AI *self, const Game *game) {
+Action get_read1_ai_action(NNAI *self, const Game *game) {
 
     // 1手先の局面の(相手にとっての)評価値が最も低くなるような指手を返す.
     Action all_actions[LEN_ACTIONS];
@@ -187,8 +187,8 @@ Action get_read1_ai_action(AI *self, const Game *game) {
 }
 
 
-AI create_read1_ai(char load_file_name[]) {
-    AI ai;
+NNAI create_read1_ai(char load_file_name[]) {
+    NNAI ai;
     ai.get_action = get_read1_ai_action;
     nn_load_model(&ai.nn, load_file_name);
     return ai;
