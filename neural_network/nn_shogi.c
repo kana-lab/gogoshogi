@@ -180,8 +180,8 @@ Action get_read1_ai_action(NNAI *self, const Game *game) {
         }
     }
 
-    debug_print("turn: %d", game->turn);
-    debug_print("history_len: %d", game->history_len);
+    //debug_print("turn: %d", game->turn);
+    //debug_print("history_len: %d", game->history_len);
 
     return all_actions[best_action];
 }
