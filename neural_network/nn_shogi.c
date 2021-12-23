@@ -3,14 +3,7 @@
 #include "neural_network.c"
 
 #define INPUT_SIZE 585
-/*
-#define TRAIN_SIZE 360000
-#define TEST_SIZE 96554
-#define DATASET "checkmates456554.txt"
-#define WEIGHTS_FILE "weights585.txt"
 
-#define LEN_ARRAY(a) ((sizeof(a)) / (sizeof(a[0])))
-*/
 
 /*
 ニューラルネットワークの学習を行う.
@@ -66,14 +59,23 @@ void mirror_board(Board *b) {
 }
 
 
-void learn_dataset(NeuralNetwork *nn, char dataset[], int train_size, int test_size, char load_file[], char save_file[]){
+void learn_dataset(char dataset[], int train_size, int test_size, char load_file[], char save_file[]){
     // datasetを学習する.
     // load_file == NULL のときは重みを読み込まない.
     // save_file == NULL のときは重みを保存しない.
 
+    // NeuralNetworkを初期化する.
+    NeuralNetwork nn;
+    if (load_file == NULL) {
+        int depth = 3;
+        int sizes[4] = {585, 32, 32, 1};
+        nn_init(&nn, depth, sizes);
+    } else
+        nn_load_model(&nn, load_file);
+
     // 入出力サイズを取得する.
-    int input_size = nn->affine[0].n;
-    int output_size = nn->sigmoid.len;
+    int input_size = nn.affine[0].n;
+    int output_size = nn.sigmoid.len;
 
     // データセットを準備する.
     // 学習データは左右を反転させて2倍にする.
@@ -114,20 +116,18 @@ void learn_dataset(NeuralNetwork *nn, char dataset[], int train_size, int test_s
     }
     fclose(fp);
 
-    // 重みを読み込む
-    if (load_file != NULL)
-        nn_load_weights(nn, load_file);
-
     // モデルを学習させる.
     double lr = 0.001;
     int epoch = 5;
-    nn_fit(nn, X_train, y_train, 2 * train_size, X_test, y_test, test_size, lr, epoch);
+    nn_fit(&nn, X_train, y_train, 2 * train_size, X_test, y_test, test_size, lr, epoch);
 
     // 重みを保存する.
     if (save_file != NULL)
-        nn_save_weights(nn, save_file);
+        nn_save_model(&nn, save_file);
     
     // メモリを解放する.
+    nn_free(&nn);
+
     for (int i = 0; i < 2 * train_size; i++) {
         free(X_train[i]);
         free(y_train[i]);
@@ -195,23 +195,15 @@ AI create_read1_ai(char load_file_name[]) {
 }
 
 
-/*
 int main(void){
     // learn_datasetの使用例
 
-    // モデルを準備する.
-    NeuralNetwork nn;
-    int depth = 3;
-    int sizes[4] = {INPUT_SIZE, 32, 32, 1};
-    assert(LEN_ARRAY(sizes) - 1 == depth);
-    nn_init(&nn, depth, sizes);
+    int train_size = 3600;//360000
+    int test_size = 96554;//96554
+    char load_file[] = "nn_585.txt";
+    char save_file[] = "nn_585.txt";
 
-    // モデルを学習させる.
-    learn_dataset(&nn, DATASET, TRAIN_SIZE, TEST_SIZE, NULL, WEIGHTS_FILE);
-
-    // モデルを削除する.
-    nn_free(&nn);
+    learn_dataset("checkmates456554.txt", train_size, test_size, load_file, save_file);
 
     return 0;
 }
-*/
