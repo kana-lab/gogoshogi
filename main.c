@@ -116,9 +116,9 @@ int main(int argc, char *argv[]) {
     // ゲームを行い、勝者を決める
     int winner;
     if (is_user_first) {
-        winner = play(&game, (PlayerInterface *) &user, (PlayerInterface *) &ai);
+        winner = play(&game, (PlayerInterface *) &user, (PlayerInterface *) &ai, true);
     } else {
-        winner = play(&game, (PlayerInterface *) &ai, (PlayerInterface *) &user);
+        winner = play(&game, (PlayerInterface *) &ai, (PlayerInterface *) &user, true);
     }
 
     // 勝敗の表示

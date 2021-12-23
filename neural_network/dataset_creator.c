@@ -92,7 +92,7 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
         Game game = create_game(MAX_TURN);
 
         // 対戦を行う.
-        int winner = play(&game, first, second);
+        int winner = play(&game, first, second, false);
 
         // 盤面を保存する.
         if (strcmp(dataset_mode, "chackmate") == 0)
