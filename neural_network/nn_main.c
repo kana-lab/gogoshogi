@@ -10,7 +10,7 @@ int main(void){
     AI second = create_random_move_ai();
 
     // データセットを作成する.
-    create_dataset((PlayerInterface *) &first, (PlayerInterface *) &second, DATASET, 10);
+    create_dataset((PlayerInterface *) &first, (PlayerInterface *) &second, DATASET, 10000, "initial");
 
     return 0;
 }
