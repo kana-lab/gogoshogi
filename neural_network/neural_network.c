@@ -188,24 +188,52 @@ void nn_fit(NeuralNetwork *nn, double **X_train, double **y_train, int train_siz
 }
 
 
-void nn_load_weights(NeuralNetwork *nn, char weights_file[]){
-    // weights_fileから重みを読み込む.
-    // 最適化関数の変数は読み込まない.
-    FILE *fp = fopen(weights_file, "r");
+void nn_load_model(NeuralNetwork *nn, char load_file[]){
+    // load_fileからNeuralNetworkのモデルを読み込んでnnを初期化する.
+
+    // ファイルを開く.
+    FILE *fp = fopen(load_file, "r");
+
+    // nnを初期化する.
+    int depth;
+    fscanf(fp, "%d", &depth);
+
+    int *sizes = malloc((depth+1) * sizeof(int));
+    for (int i = 0; i < depth+1; i++)
+        fscanf(fp, "%d", &sizes[i]);
+    
+    nn_init(nn, depth, sizes);
+
+    free(sizes);
+
+    // 重みを読み込む.
     for (int i = 0; i < nn->depth; i++){
         for (int j = 0; j < nn->affine[i].m * nn->affine[i].n; j++)
             fscanf(fp, "%lf", &nn->affine[i].w[j]);
         for (int j = 0; j < nn->affine[i].m; j++)
             fscanf(fp, "%lf", &nn->affine[i].b[j]);
     }
+
+    // ファイルを閉じる.
     fclose(fp);
 }
 
 
-void nn_save_weights(NeuralNetwork *nn, char weights_file[]){
-    // weights_fileに重みを書き込む.
-    // 最適化関数の変数は書き込まない.
-    FILE *fp = fopen(weights_file, "w");
+void nn_save_model(NeuralNetwork *nn, char save_file[]){
+    // save_fileにnnを保存する.
+    // 最適化関数の変数は保存しない.
+    
+    // ファイルを開く.
+    FILE *fp = fopen(save_file, "w");
+
+    // nnの形を書き込む.
+    fprintf(fp, "%d\n", nn->depth);
+
+    for (int i = 0; i < nn->depth; i++)
+        fprintf(fp, "%d ", nn->affine[i].n);
+    fprintf(fp, "%d\n", nn->affine[nn->depth-1].m);
+
+    // nnの重みを書き込む.
     for (int i = 0; i < nn->depth; i++){
         for (int j = 0; j < nn->affine[i].m * nn->affine[i].n; j++)
             fprintf(fp, "%lf ", nn->affine[i].w[j]);
@@ -214,6 +242,8 @@ void nn_save_weights(NeuralNetwork *nn, char weights_file[]){
             fprintf(fp, "%lf ", nn->affine[i].b[j]);
         fprintf(fp, "\n");
     }
+
+    // ファイルを閉じる.
     fclose(fp);
     printf("All weights are saved.\n");
 }
