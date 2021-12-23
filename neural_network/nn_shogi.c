@@ -2,7 +2,7 @@
 #include "../Board.h"
 #include "neural_network.c"
 
-#define INPUT_SIZE 585
+#define INPUT_SIZE 360
 
 
 /*
@@ -11,7 +11,39 @@
 
 
 void board_to_vector(const Board *b, double vec[INPUT_SIZE]) {
+    // 盤面を360次元のベクトルに変換する.
+
+    // vecを初期化する.
+    for (int i = 0; i < INPUT_SIZE; i++)
+        vec[i] = 0.0;
+    
     // 盤面を1次元のベクトルに変換する.
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (b->board[i][j] > 0)
+                vec[5*i + j] = 1.0;
+            else if (b->board[i][j] > 0)
+                vec[25 + 5*i + j] = 1.0;
+        }
+    }
+
+    // 持ち駒の情報を入力する.
+    for (int i = 0; i < 5; i++) {
+        vec[50 + i] = b->next_stock[i+1];
+        vec[55 + i] = b->previous_stock[i+1];
+    }
+
+    // 駒のききを入力する.
+    piece_moves_to_vector(b, vec, 60);
+    Board b_copy = *b;
+    reverse_board(&b_copy);
+    piece_moves_to_vector(b, vec, 210);
+}
+
+
+void board_to_vector585(const Board *b, double vec[INPUT_SIZE]) {
+    // 盤面を585次元のベクトルに変換する.
+    assert(INPUT_SIZE == 585);
 
     // vecを初期化する.
     for (int i = 0; i < INPUT_SIZE; i++)
@@ -68,7 +100,7 @@ void learn_dataset(char dataset[], int train_size, int test_size, char load_file
     NeuralNetwork nn;
     if (load_file == NULL) {
         int depth = 3;
-        int sizes[4] = {585, 32, 32, 1};
+        int sizes[6] = {INPUT_SIZE, 128, 128, 1};
         nn_init(&nn, depth, sizes);
     } else
         nn_load_model(&nn, load_file);
