@@ -37,7 +37,7 @@ void board_to_vector(const Board *b, double vec[INPUT_SIZE]) {
     piece_moves_to_vector(b, vec, 60);
     Board b_copy = *b;
     reverse_board(&b_copy);
-    piece_moves_to_vector(b, vec, 210);
+    piece_moves_to_vector(&b_copy, vec, 210);
 }
 
 
