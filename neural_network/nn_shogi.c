@@ -147,7 +147,7 @@ double nn_evaluate(NeuralNetwork *nn, const Board *b){
     // 局面の評価値(0.0~1.0)を返す.
     // 評価値が高いほど, 手番側が優勢である.
     board_to_vector(b, nn->affine[0].x);
-    nn_predict(nn, nn->affine[0].x, NULL, 0.0);
+    nn_forward(nn, nn->affine[0].x);
     return nn->sigmoid.out[0];
 }
 
