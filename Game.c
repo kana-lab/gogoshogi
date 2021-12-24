@@ -330,6 +330,24 @@ Action get_previous_action(const Game *game) {
 }
 
 
+int judge(const Game *game) {
+    // 千日手判定+チェックメイト判定を一度に行う
+    // 現在のプレイヤーの勝ちであれば1を、負けであれば-1を、いずれでもなければ0を返す
+
+    if (is_checkmate_with_tfr(game))  // 自分の負け
+        return -1;
+
+    int tfr = is_threefold_repetition_2(game);
+    if (tfr == 1) {  // 相手が通常の千日手を決めたとき
+        return (game->turn % 2 == 1) ? -1 : 1;
+    } else if (tfr == -1) {  // 相手が連続王手千日手を決めたとき
+        return 1;
+    }
+
+    return 0;
+}
+
+
 int play(Game *game, PlayerInterface *player1, PlayerInterface *player2, bool debug) {
     // player1を先手、player2を後手としてゲームを行う
     // 先手が勝った場合は1を、後手が勝った場合は-1を返し、引き分けの場合は0を返す
@@ -372,8 +390,19 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2, bool de
             break;
         }
 
+        // 実際に駒を動かす
+        do_action(game, action);
+
+        // 相手が詰みかどうかをチェック
+        if (is_checkmate_with_tfr(game)) {
+            if (debug)
+                debug_print("checkmate.");
+            winner = current_player;
+            break;
+        }
+
         // 千日手が成立するか？
-        int tfr = is_threefold_repetition(game, action);
+        int tfr = is_threefold_repetition_2(game);
         if (tfr) {
             if (tfr == 1 && current_player == -1) {
                 // 後手が千日手を決めたとき
@@ -391,9 +420,6 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2, bool de
             }
             break;
         }
-
-        // 実際に駒を動かす
-        do_action(game, action);
     }
 
     return winner;
