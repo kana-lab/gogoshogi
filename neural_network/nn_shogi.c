@@ -190,18 +190,3 @@ NNAI create_read1_ai(char load_file_name[]) {
     nn_load_model(&ai.nn, load_file_name);
     return ai;
 }
-
-/*
-int main(void){
-    // learn_datasetの使用例
-
-    int train_size = 3600;//360000
-    int test_size = 96554;//96554
-    char *load_file = "nn_585_64x2_0.txt";
-    char *save_file = NULL;
-
-    learn_dataset("checkmates456554.txt", train_size, test_size, load_file, save_file);
-
-    return 0;
-}
-*/
