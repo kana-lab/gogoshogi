@@ -75,7 +75,7 @@ int save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
         cnt++;
 
         Board b = decode(h);
-        q = (1.0-alpha)*nn_evaluate(&player->nn,&b) + alpha*q;
+        q = (1.0-alpha)*nn_evaluate(&player->nn,(i+1)%2,&b) + alpha*q;
         q = 1.0 - q;
         
         if (0.4 < q && q < 0.6)
