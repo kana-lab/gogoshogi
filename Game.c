@@ -365,6 +365,10 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2, bool de
             Board b = game->current;
             if (game->turn % 2 == 0)
                 reverse_board(&b);
+            if (game->turn % 2 == 0)
+                debug_print("\nTurn %d; Second Player's Turn\n", game->turn);
+            else
+                debug_print("\nTurn %d; First Player's Turn\n", game->turn);
             print_board_for_debug(&b);
             print_all_actions_for_debug(game);
         }
