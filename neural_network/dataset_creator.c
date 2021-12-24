@@ -60,10 +60,11 @@ void save_initial_board(Game *game, bool hash_table[HASH_MOD], char dataset[]) {
 }
 
 
-void save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
+int save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
     // 自己対戦の結果からデータセットを作成する.
     // 強化学習におけるモンテカルロ法のQ値更新方法を参考にした.
     double alpha = 0.95;
+    int cnt = 0;
     FILE *fp = fopen(dataset, "a");
 
     double q = 0.0;
@@ -71,11 +72,18 @@ void save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
     for (int i = game->history_len-1; 0 <= i; i--) {
         Hash h = reverse_hash(game->history[i]);
         fprintf(fp, "%llu %llu %lf\n", h.lower, h.upper, q);
+        cnt++;
+
         Board b = decode(h);
         q = (1.0-alpha)*nn_evaluate(&player->nn,&b) + alpha*q;
         q = 1.0 - q;
+        
+        if (0.4 < q && q < 0.6)
+            break;
     }
     fclose(fp);
+
+    return cnt;
 }
 
 
@@ -88,7 +96,7 @@ int create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset
 
     int results_count[3] = {0, 0, 0};
     int sum_history_len = 0;
-    int sum_history_len_minus = 0;
+    int dataset_size = 0;
     bool *hash_table = calloc(HASH_MOD, sizeof(bool));
 
     for (int i = 0; i < epoch; i++) {
@@ -110,9 +118,7 @@ int create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset
             save_initial_board(&game, hash_table, dataset_save_file);
         else if (strcmp(dataset_mode, "self_match") == 0) {
             if (winner != 0)
-                save_self_match_dataset(&game, (NNAI*) first, dataset_save_file);
-            else
-                sum_history_len_minus += game.history_len;
+                dataset_size += save_self_match_dataset(&game, (NNAI*) first, dataset_save_file);
         } else
             debug_print("error; unknown dataset_mode");
 
@@ -129,7 +135,7 @@ int create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset
     debug_print("draw      : %lf%%", (double) results_count[1] * 100.0 / epoch);
     debug_print("average finish turn: %lf", (double) sum_history_len / epoch);
 
-    return sum_history_len - sum_history_len_minus;
+    return dataset_size;
 }
 
 
