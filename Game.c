@@ -178,7 +178,12 @@ int save(const Game *game) {
 void load(Game *game, int saved_id) {
     // セーブしておいたIDをもとに、状態を復元する
 
-    assert(game->history_len > saved_id);
+    //assert(game->history_len > saved_id);
+    if (game->history_len >= saved_id) {
+        debug_print("in load: ERROR, history_len=%d, saved_id=%d", game->history_len, saved_id);
+        assert(false);
+    }
+
     Hash h = reverse_hash(game->history[saved_id - 1]);
     game->current = decode(h);
     game->history_len = saved_id;
