@@ -26,7 +26,7 @@
 #include "gamedef.h"
 #include "neural_network/random_move.c"
 
-#define EXPANSION_THRESHOLD 50
+#define EXPANSION_THRESHOLD 25
 #define MAX_SIMULATION_TURN 500
 
 
@@ -138,7 +138,7 @@ void expand(Node *root, const Game *game) {
 
     // rootから取り得る行動を全列挙
     Action all_actions[LEN_ACTIONS];
-    int len_actions = get_all_actions_with_tfr(game, all_actions);
+    int len_actions = get_useful_actions_with_tfr(game, all_actions);
     assert(len_actions != 0);
 
     // children配列の動的確保
@@ -260,7 +260,7 @@ Action get_action_from_mct(MonteCarloAI *self, const Game *game) {
         self->tree = next_root;
     }
 
-    Game game_copy = clone(game, MAX_SIMULATION_TURN);
+    Game game_copy = clone(game, MAX_SIMULATION_TURN + game->turn);
     for (int i = 0; i < 1000; ++i) {
         monte_carlo_tree_search(&self->tree, &game_copy);
     }
