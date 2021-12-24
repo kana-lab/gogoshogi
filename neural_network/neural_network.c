@@ -163,7 +163,7 @@ void nn_test(NeuralNetwork *nn, double **X_test, double **y_test, int test_size)
         if (i == test_size/100)
             printf("---   1%% %lds\n", time(NULL) - start_time);
         else if (i == test_size/10)
-            printf("---  10%% %lds\n; ", time(NULL) - start_time);
+            printf("---  10%% %lds\n", time(NULL) - start_time);
         else if (i == test_size - 1)
             printf("--- 100%% %lds\n", time(NULL) - start_time);
     }
