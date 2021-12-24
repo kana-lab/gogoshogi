@@ -88,6 +88,7 @@ int create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset
 
     int results_count[3] = {0, 0, 0};
     int sum_history_len = 0;
+    int sum_history_len_minus = 0;
     bool *hash_table = calloc(HASH_MOD, sizeof(bool));
 
     for (int i = 0; i < epoch; i++) {
@@ -102,13 +103,17 @@ int create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset
         int winner = play(&game, first, second, false);
 
         // 盤面を保存する.
-        if (strcmp(dataset_mode, "chackmate") == 0)
-            save_checkmate_board(&game, hash_table, dataset_save_file);
-        else if (strcmp(dataset_mode, "initial") == 0)
+        if (strcmp(dataset_mode, "chackmate") == 0) {
+            if (winner != 0)
+                save_checkmate_board(&game, hash_table, dataset_save_file);
+        } else if (strcmp(dataset_mode, "initial") == 0)
             save_initial_board(&game, hash_table, dataset_save_file);
-        else if (strcmp(dataset_mode, "self_match") == 0)
-            save_self_match_dataset(&game, (NNAI*) first, dataset_save_file);
-        else
+        else if (strcmp(dataset_mode, "self_match") == 0) {
+            if (winner != 0)
+                save_self_match_dataset(&game, (NNAI*) first, dataset_save_file);
+            else
+                sum_history_len_minus += game.history_len;
+        } else
             debug_print("error; unknown dataset_mode");
 
         // 勝利回数などを記録する.
@@ -124,7 +129,7 @@ int create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset
     debug_print("draw      : %lf%%", (double) results_count[1] * 100.0 / epoch);
     debug_print("average finish turn: %lf", (double) sum_history_len / epoch);
 
-    return sum_history_len;
+    return sum_history_len - sum_history_len_minus;
 }
 
 
@@ -157,5 +162,9 @@ void self_match_learning(char model_file_name[], int epoch100) {
 
         // 学習を行う.
         learn_dataset(dataset, sum_history_len, 0, model_file_name, model_file_name);
+
+        // NeuralNetworkのメモリを解放する.
+        nn_free(&first.nn);
+        nn_free(&second.nn);
     }
 }
