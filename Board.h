@@ -50,6 +50,8 @@ int get_useful_actions(const Board *b, Action actions[LEN_ACTIONS]);
 
 void count_connections(const Board *b, double counts[5][5]);
 
+void piece_moves_to_vector(const Board *b, double vec[], int start_index);
+
 Action delta_of(const Board *before, const Board *after);
 
 

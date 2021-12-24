@@ -2,7 +2,7 @@
 #include "../Board.h"
 #include "neural_network.c"
 
-#define INPUT_SIZE 585
+#define INPUT_SIZE 360
 
 
 /*
@@ -11,7 +11,39 @@
 
 
 void board_to_vector(const Board *b, double vec[INPUT_SIZE]) {
+    // 盤面を360次元のベクトルに変換する.
+
+    // vecを初期化する.
+    for (int i = 0; i < INPUT_SIZE; i++)
+        vec[i] = 0.0;
+    
     // 盤面を1次元のベクトルに変換する.
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (b->board[i][j] > 0)
+                vec[5*i + j] = 1.0;
+            else if (b->board[i][j] > 0)
+                vec[25 + 5*i + j] = 1.0;
+        }
+    }
+
+    // 持ち駒の情報を入力する.
+    for (int i = 0; i < 5; i++) {
+        vec[50 + i] = b->next_stock[i+1];
+        vec[55 + i] = b->previous_stock[i+1];
+    }
+
+    // 駒のききを入力する.
+    piece_moves_to_vector(b, vec, 60);
+    Board b_copy = *b;
+    reverse_board(&b_copy);
+    piece_moves_to_vector(&b_copy, vec, 210);
+}
+
+
+void board_to_vector585(const Board *b, double vec[INPUT_SIZE]) {
+    // 盤面を585次元のベクトルに変換する.
+    assert(INPUT_SIZE == 585);
 
     // vecを初期化する.
     for (int i = 0; i < INPUT_SIZE; i++)
@@ -68,7 +100,7 @@ void learn_dataset(char dataset[], int train_size, int test_size, char load_file
     NeuralNetwork nn;
     if (load_file == NULL) {
         int depth = 3;
-        int sizes[4] = {585, 32, 32, 1};
+        int sizes[6] = {INPUT_SIZE, 128, 128, 1};
         nn_init(&nn, depth, sizes);
     } else
         nn_load_model(&nn, load_file);
@@ -147,7 +179,7 @@ double nn_evaluate(NeuralNetwork *nn, const Board *b){
     // 局面の評価値(0.0~1.0)を返す.
     // 評価値が高いほど, 手番側が優勢である.
     board_to_vector(b, nn->affine[0].x);
-    nn_predict(nn, nn->affine[0].x, NULL, 0.0);
+    nn_forward(nn, nn->affine[0].x);
     return nn->sigmoid.out[0];
 }
 
@@ -180,8 +212,8 @@ Action get_read1_ai_action(NNAI *self, const Game *game) {
         }
     }
 
-    debug_print("turn: %d", game->turn);
-    debug_print("history_len: %d", game->history_len);
+    //debug_print("turn: %d", game->turn);
+    //debug_print("history_len: %d", game->history_len);
 
     return all_actions[best_action];
 }
@@ -194,7 +226,7 @@ NNAI create_read1_ai(char load_file_name[]) {
     return ai;
 }
 
-
+/*
 int main(void){
     // learn_datasetの使用例
 
@@ -207,3 +239,4 @@ int main(void){
 
     return 0;
 }
+*/

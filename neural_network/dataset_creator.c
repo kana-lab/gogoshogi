@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define LEN_INITIAL_BOARDS 48245
+#define INITIAL_BOARDS_FILE "initial_boards_48245.txt"
 #define HASH_MOD 9999991 // 10^7以下の最大素数
 
 
@@ -61,22 +63,23 @@ void save_initial_board(Game *game, bool hash_table[HASH_MOD], char dataset[]) {
 void save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
     // 自己対戦の結果からデータセットを作成する.
     // 強化学習におけるモンテカルロ法のQ値更新方法を参考にした.
-    double alpha = 0.9;
+    double alpha = 0.95;
     FILE *fp = fopen(dataset, "a");
 
     double q = 0.0;
 
-    for (int i = game->history_len-1; 0 <= i; i++) {
+    for (int i = game->history_len-1; 0 <= i; i--) {
         Hash h = reverse_hash(game->history[i]);
         fprintf(fp, "%llu %llu %lf\n", h.lower, h.upper, q);
         Board b = decode(h);
-        q = (1.0-alpha)*nn_evaluate(&player->nn, &b) + alpha*(1.0-q);
+        q = (1.0-alpha)*nn_evaluate(&player->nn,&b) + alpha*q;
+        q = 1.0 - q;
     }
     fclose(fp);
 }
 
 
-void create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset_save_file[], int epoch, char dataset_mode[]) {
+int create_dataset(PlayerInterface *first, PlayerInterface *second, char dataset_save_file[], int epoch, char dataset_mode[], Hash *initial_boards, int len_initial_boards) {
     // firstとsecondで対戦を行い, 学習データを生成する.
 
     // dataset_save_fileの中身を削除する.
@@ -85,23 +88,32 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
 
     int results_count[3] = {0, 0, 0};
     int sum_history_len = 0;
+    int sum_history_len_minus = 0;
     bool *hash_table = calloc(HASH_MOD, sizeof(bool));
 
     for (int i = 0; i < epoch; i++) {
         // 初期化済みのゲームクラスを作る.
         Game game = create_game(MAX_TURN);
+        if (initial_boards != NULL) {
+            game.current = decode(initial_boards[rand()%len_initial_boards]);
+            game.history[0] = reverse_hash(encode(&game.current));
+        }
 
         // 対戦を行う.
         int winner = play(&game, first, second, false);
 
         // 盤面を保存する.
-        if (strcmp(dataset_mode, "chackmate") == 0)
-            save_checkmate_board(&game, hash_table, dataset_save_file);
-        else if (strcmp(dataset_mode, "initial") == 0)
+        if (strcmp(dataset_mode, "chackmate") == 0) {
+            if (winner != 0)
+                save_checkmate_board(&game, hash_table, dataset_save_file);
+        } else if (strcmp(dataset_mode, "initial") == 0)
             save_initial_board(&game, hash_table, dataset_save_file);
-        else if (strcmp(dataset_mode, "self_match") == 0)
-            save_self_match_dataset(&game, (NNAI*) first, dataset_save_file);
-        else
+        else if (strcmp(dataset_mode, "self_match") == 0) {
+            if (winner != 0)
+                save_self_match_dataset(&game, (NNAI*) first, dataset_save_file);
+            else
+                sum_history_len_minus += game.history_len;
+        } else
             debug_print("error; unknown dataset_mode");
 
         // 勝利回数などを記録する.
@@ -116,4 +128,43 @@ void create_dataset(PlayerInterface *first, PlayerInterface *second, char datase
     debug_print("second win: %lf%%", (double) results_count[0] * 100.0 / epoch);
     debug_print("draw      : %lf%%", (double) results_count[1] * 100.0 / epoch);
     debug_print("average finish turn: %lf", (double) sum_history_len / epoch);
+
+    return sum_history_len - sum_history_len_minus;
+}
+
+
+void self_match_learning(char model_file_name[], int epoch100) {
+    // 自己対戦による強化学習を行う.
+    // 100 * epoch100 対戦だけ行う.
+
+    // 初期盤面を読み込む.
+    Hash *initial_boards = malloc(LEN_INITIAL_BOARDS * sizeof(Hash));
+    FILE *fp = fopen(INITIAL_BOARDS_FILE, "r");
+    for (int i = 0; i < LEN_INITIAL_BOARDS; i++) {
+        Hash h;
+        fscanf(fp, "%llu %llu", &h.lower, &h.upper);
+        initial_boards[i] = h;
+    }
+    fclose(fp);
+
+    char *dataset = "self_match.txt";
+
+    for (int i = 0; i < epoch100; i++) {
+        debug_print("------------------------------");
+        debug_print("self match epoch %d/%d", i+1, epoch100);
+
+        // プレイヤーを初期化する.
+        NNAI first = create_read1_ai(model_file_name);
+        NNAI second = create_read1_ai(model_file_name);
+
+        // データセットを作成する.
+        int sum_history_len = create_dataset((PlayerInterface *) &first, (PlayerInterface *) &second, dataset, 100, "self_match", initial_boards, LEN_INITIAL_BOARDS);
+
+        // 学習を行う.
+        learn_dataset(dataset, sum_history_len, 0, model_file_name, model_file_name);
+
+        // NeuralNetworkのメモリを解放する.
+        nn_free(&first.nn);
+        nn_free(&second.nn);
+    }
 }
