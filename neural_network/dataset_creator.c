@@ -63,7 +63,7 @@ void save_initial_board(Game *game, bool hash_table[HASH_MOD], char dataset[]) {
 void save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
     // 自己対戦の結果からデータセットを作成する.
     // 強化学習におけるモンテカルロ法のQ値更新方法を参考にした.
-    double alpha = 0.9;
+    double alpha = 0.95;
     FILE *fp = fopen(dataset, "a");
 
     double q = 0.0;
@@ -146,7 +146,7 @@ void self_match_learning(char model_file_name[], int epoch100) {
 
     for (int i = 0; i < epoch100; i++) {
         debug_print("------------------------------");
-        debug_print("epoch %d/%d", i+1, epoch100);
+        debug_print("self match epoch %d/%d", i+1, epoch100);
 
         // プレイヤーを初期化する.
         NNAI first = create_read1_ai(model_file_name);
