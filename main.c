@@ -3,6 +3,8 @@
 #include <string.h>
 #include "Game.h"
 
+#include "neural_network/nn_shogi.c" // ニューラルネットワークを使う場合
+
 
 /*******************************
  * ユーザーを表すクラスUserの定義
@@ -107,7 +109,9 @@ int main(int argc, char *argv[]) {
     }
 
     // プレイヤーの宣言
-    AI ai = create_ai();
+    //AI ai = create_ai();
+    NNAI ai = create_read1_ai("neural_network/nn_361_128x2_1.txt"); // 1手先読みAI
+
     User user = create_user();
 
     // 初期化済みのゲームクラスを作る
