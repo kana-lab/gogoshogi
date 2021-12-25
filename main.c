@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
 
     // プレイヤーの宣言
     //AI ai = create_ai();
-    NNAI ai = create_read1_ai("neural_network/nn_361_128x2_1.txt"); // 1手先読みAI
+    NNAI ai = create_read1_ai("neural_network/nn_361_128x2_4.txt"); // 1手先読みAI
 
     User user = create_user();
 
