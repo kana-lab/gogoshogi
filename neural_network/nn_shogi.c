@@ -169,7 +169,7 @@ Action get_read1_ai_action(NNAI *self, const Game *game) {
     int min_evaluation = 1.0;
     for (int i = 0; i < len_all_actions; i++) {
         do_action((Game *) game, all_actions[i]);
-        int evaluation = nn_evaluate(&self->nn, game->turn%2, &game->current);
+        int evaluation = nn_evaluate(&self->nn, 1-game->turn%2, &game->current);
         undo_action((Game *) game);
         if (evaluation < min_evaluation) {
             best_action = i;
