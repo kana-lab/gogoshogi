@@ -63,7 +63,8 @@ void save_initial_board(Game *game, bool hash_table[HASH_MOD], char dataset[]) {
 int save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
     // 自己対戦の結果からデータセットを作成する.
     // 強化学習におけるモンテカルロ法のQ値更新方法を参考にした.
-    double alpha = 0.9;
+    double alpha = 0.1;
+    double gamma = 0.9;
     int cnt = 0;
     FILE *fp = fopen(dataset, "a");
 
@@ -71,11 +72,13 @@ int save_self_match_dataset(Game *game, NNAI *player, char dataset[]) {
 
     for (int i = game->history_len-1; 0 <= i; i--) {
         Hash h = reverse_hash(game->history[i]);
-        fprintf(fp, "%llu %llu %lf\n", h.lower, h.upper, q);
+        Board b = decode(h);
+        double evaluation = nn_evaluate(&player->nn,(i+1)%2,&b);
+
+        fprintf(fp, "%llu %llu %lf\n", h.lower, h.upper, (1.0-alpha)*evaluation + alpha*q);
         cnt++;
 
-        Board b = decode(h);
-        q = (1.0-alpha)*nn_evaluate(&player->nn,(i+1)%2,&b) + alpha*q;
+        q = (1.0-gamma)*evaluation + gamma*q;
         q = 1.0 - q;
         
         if (0.499 < q && q < 0.501)
