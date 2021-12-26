@@ -176,7 +176,9 @@ Action get_read1_ai_action(NNAI *self, const Game *game) {
             min_evaluation = evaluation;
         }
         //char buffer[32];
-        //action_to_string(all_actions[i], buffer);
+        //Action action = all_actions[i];
+        //reverse_action(&action);
+        //action_to_string(action, buffer);
         //printf("%s %lf, ", buffer, evaluation);
     }
 
