@@ -551,12 +551,9 @@ void piece_moves_to_vector(const Board *b, double vec[], int start_index) {
                     int y = j + move_matrix_y[piece % NARI][k];
                     while (0 <= x && x < 5 && 0 <= y && y < 5) {// && b->board[x][y] <= EMPTY) {
                         vec[start_index + 25*(piece%NARI) + 5*x + y] += 1.0;
-                        // 駒を飛び越えてききがあることにする.
-                        /*
-                        if (b->board[x][y] < EMPTY)
-                            // 相手の駒を取ったとき
+                        if (b->board[x][y] != EMPTY)
+                            // 他の駒とぶつかったとき
                             break;
-                        */
                         x += move_matrix_x[piece % NARI][k];
                         y += move_matrix_y[piece % NARI][k];
                     }
