@@ -47,7 +47,7 @@ int BeamNode_comparison(const void *bn1, const void *bn2) {
 }
 
 
-void BeamNode_expand(BeamNode *self, NeuralNetwork *nn) {
+void BeamNode_expand(BeamNode *self, NeuralNetwork *nn, int max_children) {
     // BeamNode の子を探索する.
     Action all_actions[LEN_ACTIONS];
     self->len_children = get_useful_actions(&self->b, all_actions);
@@ -61,6 +61,9 @@ void BeamNode_expand(BeamNode *self, NeuralNetwork *nn) {
     }
     // 子ノードを評価値順に並べ替える.
     qsort(self->children, self->len_children, sizeof(BeamNode*), BeamNode_comparison);
+    // 子ノードの一部を削る.
+    if (self->len_children > max_children)
+        self->len_children = max_children;
     // 親ノードの評価値を更新する.
     if (self->len_children == 0)
         self->evaluation = -1.0;
@@ -91,7 +94,7 @@ int BeamNode_argmin(BeamNode **array, int len_array) {
 }
 
 
-int beam_search_1step(BeamNode **array, int len_array, int width, NeuralNetwork *nn) {
+int beam_search_1step(BeamNode **array, int len_array, int width, NeuralNetwork *nn, int depth, int max_children) {
     // ビームサーチの1ステップを行う.
     // 次の探索ノードをarrayに代入する.
     // 返り値は次の探索ノードの数である.
@@ -99,14 +102,18 @@ int beam_search_1step(BeamNode **array, int len_array, int width, NeuralNetwork 
 
     // 子ノードを探索する.
     for (int i = 0; i < len_array; i++)
-        BeamNode_expand(array[i], nn);
+        BeamNode_expand(array[i], nn, max_children);
     
     // 次の探索ノードを列挙する.
     BeamNode **new_array = malloc(width * sizeof(BeamNode*));
     int len_new_array = 0;
     int *indices = calloc(len_array, sizeof(int));
     for (int i = 0; i < width; i++) {
-        int best = BeamNode_argmax(array, len_array);
+        int best;
+        if (depth % 2)
+            best = BeamNode_argmin(array, len_array);
+        else
+            best = BeamNode_argmax(array, len_array);
         if (array[best]->evaluation == -1.0)
             break;
         new_array[len_new_array++] = array[best]->children[indices[best]++];
@@ -167,8 +174,9 @@ Action beam_search(NNAI *self, const Game *game) {
     // ビームサーチによって最善手を取得する.
 
     // パラメータを定義する.
-    int width = 100;
+    int width = 1000;
     int max_depth = 10;
+    int max_children = 10;
 
     // 変数を初期化する.
     BeamNode **array = malloc(width * sizeof(BeamNode*));
@@ -179,7 +187,7 @@ Action beam_search(NNAI *self, const Game *game) {
 
     // ビームサーチを行う.
     for (int depth = 0; depth < max_depth; depth++) {
-        len_array = beam_search_1step(array, len_array, width, &self->nn);
+        len_array = beam_search_1step(array, len_array, width, &self->nn, depth, max_children);
         if (len_array == 0)
             break;
     }
