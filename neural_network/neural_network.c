@@ -54,6 +54,22 @@ void nn_free(NeuralNetwork *nn){
 }
 
 
+void nn_clear_d(NeuralNetwork *nn){
+    // AffineLayerの勾配を0.0で初期化する.
+    for (int i = 0; i < nn->depth; i++){
+        affine_clear_d(&nn->affine[i]);
+    }
+}
+
+
+void nn_update(NeuralNetwork *nn, double lr){
+    // パラメータを更新する.
+    for (int i = 0; i < nn->depth; i++)
+        adam(&nn->affine[i], &nn->velocities[i], lr, 0.9, 0.999, 1e-7);
+    nn_clear_d(nn);
+}
+
+
 void nn_forward(NeuralNetwork *nn, const double x[]){
     // NeuralNetworkに入力xを与え, 出力をnn->sigmoid.outに代入する.
     affine_forward(&nn->affine[0], x);
@@ -91,13 +107,9 @@ double nn_predict(NeuralNetwork *nn, const double x[], const double y[], double 
     // 誤差を求める.
     double res = sse(nn->sigmoid.out, y, nn->sigmoid.dout, nn->sigmoid.len);
 
-    if (0.0 < lr){
+    if (0.0 < lr)
         // lrが正のときに誤差を逆伝播させる.
         nn_backward(nn);
-        // パラメータを更新する.
-        for (int i = 0; i < nn->depth; i++)
-            adam(&nn->affine[i], &nn->velocities[i], lr, 0.9, 0.999, 1e-7);
-    }
 
     // 二乗和誤差を返す.
     return res;
@@ -110,7 +122,7 @@ int is_correct(const double y[], const double t[]){
 }
 
 
-void nn_train(NeuralNetwork *nn, double **X_train, double **y_train, int train_size, double lr){
+void nn_train(NeuralNetwork *nn, double **X_train, double **y_train, int train_size, double lr, int batch_size){
     // X_train, y_trainから学習を行う.
 
     // 変数を初期化する.
@@ -127,7 +139,15 @@ void nn_train(NeuralNetwork *nn, double **X_train, double **y_train, int train_s
     time_t start_time = time(NULL);
 
     // 予測およびパラメータの更新を行う.
+    nn_clear_d(nn);
+
     for (int i = 0; i < train_size; i++){
+
+        // バッチサイズ毎にパラメータを更新する.
+        if (i % batch_size == 0)
+            nn_update(nn, lr);
+        
+        // 予測を行う.
         sum_loss += nn_predict(nn, X_train[indices[i]], y_train[indices[i]], lr);
         correct_counter += is_correct(nn->sigmoid.out, y_train[indices[i]]);
 
@@ -139,6 +159,8 @@ void nn_train(NeuralNetwork *nn, double **X_train, double **y_train, int train_s
         else if (i == train_size - 1)
             printf("--- 100%% %lds\n", time(NULL) - start_time);
     }
+
+    nn_update(nn, lr);
 
     // 結果を出力する.
     printf("--- Train Accuracy: %lf, Train Loss: %lf\n", correct_counter/(double)train_size, sum_loss/(double)train_size);
@@ -156,6 +178,8 @@ void nn_test(NeuralNetwork *nn, double **X_test, double **y_test, int test_size)
     time_t start_time = time(NULL);
 
     for (int i = 0; i < test_size; i++){
+
+        // 予測を行う.
         sum_loss += nn_predict(nn, X_test[i], y_test[i], 0.0);
         correct_counter += is_correct(nn->sigmoid.out, y_test[i]);
 
@@ -173,11 +197,11 @@ void nn_test(NeuralNetwork *nn, double **X_test, double **y_test, int test_size)
 }
 
 
-void nn_fit(NeuralNetwork *nn, double **X_train, double **y_train, int train_size, double **X_test, double **y_test, int test_size, double lr, int epoch){
+void nn_fit(NeuralNetwork *nn, double **X_train, double **y_train, int train_size, double **X_test, double **y_test, int test_size, double lr, int batch_size, int epoch){
     // モデルの学習および検証を行う.
     for (int i = 0; i < epoch; i++){
         printf("epoch %d/%d\n", i+1, epoch);
-        nn_train(nn, X_train, y_train, train_size, lr);
+        nn_train(nn, X_train, y_train, train_size, lr, batch_size);
         nn_test(nn, X_test, y_test, test_size);
     }
 }
