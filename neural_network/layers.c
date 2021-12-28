@@ -160,7 +160,17 @@ void affine_backward(AffineLayer *layer){
     matT_mul_vec(layer->w, layer->out, layer->x, layer->n, layer->m);
     // dbを計算する.
     for (int i = 0; i < layer->m; i++)
-        layer->db[i] = layer->out[i];
+        layer->db[i] += layer->out[i];
+}
+
+void affine_clear_d(AffineLayer *layer){
+    // 勾配を0.0で初期化する.
+    for (int i = 0; i < layer->m*layer->n; i++){
+        layer->dw[i] = 0.0;
+    }
+    for (int i = 0; i < layer->m; i++){
+        layer->db[i] = 0.0;
+    }
 }
 
 
