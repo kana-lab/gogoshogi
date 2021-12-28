@@ -61,11 +61,16 @@ void learn_dataset(char dataset[], int train_size, int test_size, char load_file
     // load_file == NULL のときは重みを読み込まない.
     // save_file == NULL のときは重みを保存しない.
 
+    // ハイパーパラメータを設定する.
+    double lr = 0.01;
+    int batch_size = 16;
+    int epoch = 5;
+
     // NeuralNetworkを初期化する.
     NeuralNetwork nn;
     if (load_file == NULL) {
-        int depth = 3;
-        int sizes[4] = {INPUT_SIZE, 32, 32, 1};
+        int depth = 4;
+        int sizes[5] = {INPUT_SIZE, 128, 128, 128, 1};
         nn_init(&nn, depth, sizes);
     } else
         nn_load_model(&nn, load_file);
@@ -114,9 +119,7 @@ void learn_dataset(char dataset[], int train_size, int test_size, char load_file
     fclose(fp);
 
     // モデルを学習させる.
-    double lr = 0.001;
-    int epoch = 5;
-    nn_fit(&nn, X_train, y_train, 2 * train_size, X_test, y_test, test_size, lr, epoch);
+    nn_fit(&nn, X_train, y_train, 2 * train_size, X_test, y_test, test_size, lr, batch_size, epoch);
 
     // 重みを保存する.
     if (save_file != NULL)
@@ -175,15 +178,15 @@ Action get_read1_ai_action(NNAI *self, const Game *game) {
             best_action = i;
             min_evaluation = evaluation;
         }
-        /*
-        // 各指手の評価値を出力したいときはコメントを外す.
-        char buffer[32];
-        Action action = all_actions[i];
-        reverse_action(&action);
-        action_to_string(action, buffer);
-        printf("%s %lf, ", buffer, evaluation);
-        */
+        //char buffer[32];
+        //Action action = all_actions[i];
+        //reverse_action(&action);
+        //action_to_string(action, buffer);
+        //printf("%s %lf, ", buffer, evaluation);
     }
+
+    //debug_print("turn: %d", game->turn);
+    //debug_print("history_len: %d", game->history_len);
 
     return all_actions[best_action];
 }
