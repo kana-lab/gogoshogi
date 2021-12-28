@@ -175,15 +175,15 @@ Action get_read1_ai_action(NNAI *self, const Game *game) {
             best_action = i;
             min_evaluation = evaluation;
         }
-        //char buffer[32];
-        //Action action = all_actions[i];
-        //reverse_action(&action);
-        //action_to_string(action, buffer);
-        //printf("%s %lf, ", buffer, evaluation);
+        /*
+        // 各指手の評価値を出力したいときはコメントを外す.
+        char buffer[32];
+        Action action = all_actions[i];
+        reverse_action(&action);
+        action_to_string(action, buffer);
+        printf("%s %lf, ", buffer, evaluation);
+        */
     }
-
-    //debug_print("turn: %d", game->turn);
-    //debug_print("history_len: %d", game->history_len);
 
     return all_actions[best_action];
 }
