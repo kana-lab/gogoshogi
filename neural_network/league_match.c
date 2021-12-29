@@ -1,8 +1,8 @@
 #include "../Game.h"
 #include "../Board.h"
-#include "nn_shogi.c"
+#include "beam_search.c"
 
-#define PLAYER 4
+#define PLAYER 6
 
 
 /*
@@ -29,12 +29,18 @@ int main(void) {
     players[3] = create_read1_ai("nn_64x2_1.txt");
     names[3] = "64x2 normal AI";
 
+    players[4] = create_beam_search_ai("nn_32x2_1.txt");
+    names[4] = "32x2 beam search AI";
+
+    players[5] = create_beam_search_ai("nn_64x2_1.txt");
+    names[5] = "64x2 beam search AI";
+
     // Player同士を対戦させる.
 
     char *results[PLAYER][PLAYER];
 
     for (int i = 0; i < PLAYER; i++) {
-        printf("Number: %d, %s\n", i+1, names[i]);
+        printf("Number %d: %s\n", i+1, names[i]);
 
         // players[i]と他のplayerを対戦させる.
         for (int j = 0; j < PLAYER; j++) {
