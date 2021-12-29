@@ -62,7 +62,7 @@ void learn_dataset(char dataset[], int train_size, int test_size, char load_file
     // save_file == NULL のときは重みを保存しない.
 
     // ハイパーパラメータを設定する.
-    double lr = 0.01;
+    double lr = 0.001;
     int batch_size = 16;
     int epoch = 5;
 
