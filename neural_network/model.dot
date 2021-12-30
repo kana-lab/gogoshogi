@@ -1,0 +1,35 @@
+digraph {
+    rankdir = UD;
+    label = "
+    Hyperparameters
+
+
+    the number of self matches: 100,000
+
+    reinforcement learning mathod: Monte Carlo methods
+    α: 0.2
+    γ: 0.8
+
+    epoch: 5
+    batch size: 32
+
+    optimizer: Adam
+    learning rate: 0.001
+    β1: 0.9
+    β2: 0.999
+    ε: 1e-7";
+    fontsize = 24;
+    node [shape = box];
+
+    "361 inputs" [width = 5];
+    "128 nodes (1)" [width = 4];
+    "128 nodes (2)" [width = 4];
+    "64 nodes (1)" [width = 3];
+    "64 nodes (2)" [width = 3];
+    "32 nodes (1)" [width = 2];
+    "32 nodes (2)" [width = 2];
+    "1 output" [width = 1];
+
+    "361 inputs" -> "128 nodes (1)" -> "128 nodes (2)" -> "64 nodes (1)" -> "64 nodes (2)" -> "32 nodes (1)" -> "32 nodes (2)" [label = " Affine Layer + ReLU Layer"];
+    "32 nodes (2)" -> "1 output" [label = " Sigmoid Layer"];
+}
