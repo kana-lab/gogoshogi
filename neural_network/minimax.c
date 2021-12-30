@@ -203,7 +203,7 @@ Action game_tree_search(NNAI *self, const Game *game) {
     // 時間計測の準備をする.
     struct timespec start_time, tmp_time;
     clock_gettime(CLOCK_REALTIME, &start_time);
-    double max_time = MAX_TIME * 0.9;
+    double max_time = MAX_TIME * 0.95;
 
     // パラメータを定義する.
     int max_children = 4; // 分岐数の最大値. これ以上の分岐は評価関数によってすぐに枝刈りを行う.
