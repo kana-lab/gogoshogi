@@ -29,5 +29,6 @@
 
 void debug_print(const char *msg, ...);
 
+double stop_watch(struct timespec start_time, struct timespec end_time);
 
 #endif  /* GAMEDEF_H */
