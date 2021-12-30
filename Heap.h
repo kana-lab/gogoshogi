@@ -5,11 +5,11 @@
 typedef struct {                 // ヒープに入れる要素を表す構造体
     int value;                   // この値が小さい順になるようにヒープを作る事
     unsigned int index_in_heap;  // ヒープ中での自分のインデックスを保持しておく
-} Element;
+} *PElement;
 
 
 typedef struct {                // ヒープを表す構造体
-    Element **q;                // ヒープ本体、Element*型の要素の配列
+    PElement *q;                // ヒープ本体、PElement型の要素の配列
     unsigned int max_size;      // ヒープの最大サイズ
     unsigned int current_size;  // 現在ヒープに入っている要素の個数
 } Heap;

@@ -5,7 +5,7 @@
  * index1 及び index2 の位置にあるheapの要素を入れ替える
  */
 static void heap_swap(Heap *heap, unsigned int index1, unsigned int index2) {
-    Element *memo = heap->q[index1];
+    PElement memo = heap->q[index1];
     heap->q[index1] = heap->q[index2];
     heap->q[index2] = memo;
 
