@@ -1,3 +1,7 @@
+#ifndef NN_SHOGI
+#define NN_SHOGI
+
+
 #include "../Game.h"
 #include "../Board.h"
 #include "neural_network.c"
@@ -63,14 +67,14 @@ void learn_dataset(char dataset[], int train_size, int test_size, char load_file
 
     // ハイパーパラメータを設定する.
     double lr = 0.001;
-    int batch_size = 16;
+    int batch_size = 32;
     int epoch = 5;
 
     // NeuralNetworkを初期化する.
     NeuralNetwork nn;
     if (load_file == NULL) {
-        int depth = 4;
-        int sizes[5] = {INPUT_SIZE, 128, 128, 128, 1};
+        int depth = 7;
+        int sizes[8] = {INPUT_SIZE, 128, 128, 64, 64, 32, 32, 1};
         nn_init(&nn, depth, sizes);
     } else
         nn_load_model(&nn, load_file);
@@ -198,3 +202,6 @@ NNAI create_read1_ai(char load_file_name[]) {
     nn_load_model(&ai.nn, load_file_name);
     return ai;
 }
+
+
+#endif  /* NN_SHOGI */
