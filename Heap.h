@@ -1,5 +1,5 @@
-#ifndef TREE_H
-#define TREE_H
+#ifndef HEAP_H
+#define HEAP_H
 
 
 typedef struct {                 // ヒープに入れる要素を表す構造体
@@ -35,4 +35,4 @@ void heap_delete(Heap *heap, unsigned int delete_index);
 void heap_replace(Heap *heap, unsigned int replace_index, int replace_value);
 
 
-#endif  /* TREE_H */
+#endif  /* HEAP_H */
