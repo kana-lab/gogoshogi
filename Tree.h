@@ -1,0 +1,38 @@
+#ifndef TREE_H
+#define TREE_H
+
+
+typedef struct {                 // ヒープに入れる要素を表す構造体
+    int value;                   // この値が小さい順になるようにヒープを作る事
+    unsigned int index_in_heap;  // ヒープ中での自分のインデックスを保持しておく
+} Element;
+
+
+typedef struct {                // ヒープを表す構造体
+    Element **q;                // ヒープ本体、Element*型の要素の配列
+    unsigned int max_size;      // ヒープの最大サイズ
+    unsigned int current_size;  // 現在ヒープに入っている要素の個数
+} Heap;
+
+
+/**
+ * delete_indexで表される場所にある要素 (すなわちheap->q[delete_index]) を削除する
+ * 削除した後は次の参考文献:
+ *     http://www.mathcs.emory.edu/~cheung/Courses/171/Syllabus/9-BinTree/heap-delete.html
+ * のやり方に従ってヒープの整合性を取り戻す
+ * ヒープは最小の要素がheap->q[0]となるようにする事 (参考文献と違うので注意)
+ */
+void heap_delete(Heap *heap, unsigned int delete_index);
+
+
+/**
+ * replace_indexで表される場所にある要素 (すなわちheap->q[replace_index]) のvalueを
+ * replace_valueで置き換え、次の参考文献:
+ *     https://stackoverflow.com/questions/20397674/replacing-element-in-min-heap
+ * の回答のうちの Bernhard Barker 氏のやり方に従ってヒープの整合性を取り戻す
+ * ヒープは最小の要素がheap->q[0]となるようにする事 (参考文献と違うので注意)
+ */
+void replace(Heap *heap, unsigned int replace_index, int replace_value);
+
+
+#endif  /* TREE_H */
