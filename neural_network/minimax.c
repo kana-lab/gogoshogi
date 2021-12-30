@@ -243,18 +243,24 @@ Action game_tree_search(NNAI *self, const Game *game) {
     // 最善手を選択する.
     int idx = gtnode_argmin(root->children, root->len_children);
     Action res = root->children[idx]->action;
-    /*
+    
+    // 各指手の評価値を出力する.
     for (int i = 0; i < root->len_children; i++){
         Action action = root->children[i]->action;
-        reverse_action(&action);
+        if (game->turn % 2 == 0)
+            reverse_action(&action);
         char buffer[32];
         action_to_string(action, buffer);
-        printf("%s %lf, ", buffer, root->children[i]->evaluation);
+        debug_print("%s %lf", buffer, 1.0-root->children[i]->evaluation);
     }
-    */
+    
     // メモリを解放する.
     queue_free(&que);
     gtnode_free(root);
+
+    // 思考時間を出力する.
+    clock_gettime(CLOCK_REALTIME, &tmp_time);
+    debug_print("thinking time: %lf s", stop_watch(start_time, tmp_time));
 
     return res;
 }
