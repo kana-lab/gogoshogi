@@ -3,7 +3,7 @@
 #include <string.h>
 #include "Game.h"
 
-#include "neural_network/nn_shogi.c" // ニューラルネットワークを使う場合
+#include "neural_network/minimax.c"
 
 
 /*******************************
@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
 
     // プレイヤーの宣言
     //AI ai = create_ai();
-    NNAI ai = create_read1_ai("neural_network/nn_128x2_64x2_32x2_0.txt"); // 1手先読みAI, 結構強い
+    NNAI ai = create_minimax_ai("neural_network/nn_128x2_64x2_32x2_1.txt");
 
     User user = create_user();
 
