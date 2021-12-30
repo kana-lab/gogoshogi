@@ -24,6 +24,7 @@
 #define TOP              0    // 駒が成れるx座標
 #define LEN_ACTIONS      250  // 選択可能な指手の個数の最大値
 #define MAX_TURN         150  // ターンの最大数
+#define MAX_TIME         9.9  // 1手あたりの最大思考時間(s)
 
 
 /************************
