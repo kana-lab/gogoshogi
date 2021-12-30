@@ -26,7 +26,7 @@ void heap_delete(Heap *heap, unsigned int delete_index);
 
 
 /**
- * replace_indexで表される場所にある要素 (すなわちheap->q[replace_index]) のvalueを
+ * replace_indexで表される場所にある要素のvalue (すなわちheap->q[replace_index]->value) を
  * replace_valueで置き換え、次の参考文献:
  *     https://stackoverflow.com/questions/20397674/replacing-element-in-min-heap
  * の回答のうちの Bernhard Barker 氏のやり方に従ってヒープの整合性を取り戻す
