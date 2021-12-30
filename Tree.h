@@ -32,7 +32,7 @@ void heap_delete(Heap *heap, unsigned int delete_index);
  * の回答のうちの Bernhard Barker 氏のやり方に従ってヒープの整合性を取り戻す
  * ヒープは最小の要素がheap->q[0]となるようにする事 (参考文献と違うので注意)
  */
-void replace(Heap *heap, unsigned int replace_index, int replace_value);
+void heap_replace(Heap *heap, unsigned int replace_index, int replace_value);
 
 
 #endif  /* TREE_H */
