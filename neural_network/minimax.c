@@ -18,7 +18,7 @@ typedef struct __gtnode{
 } GameTreeNode;
 
 
-void gtnode_init(GameTreeNode *self, const Board *b, bool is_first, GameTreeNode *parent, Action action, NeuralNetwork *nn) {
+void gtnode_init(GameTreeNode *self, const Board *b, bool is_first, GameTreeNode *parent, Action action, NeuralNetwork *nn, int max_children) {
     // GameTreeNodeを初期化する.
     // 子ノードの探索は行わない.
     self->b = *b;
@@ -26,7 +26,7 @@ void gtnode_init(GameTreeNode *self, const Board *b, bool is_first, GameTreeNode
     self->evaluation = nn_evaluate(nn, is_first, b);
     self->parent = parent;
     self->len_children = -1; // 探索前は-1に設定する.
-    self->children = NULL;
+    self->children = malloc(max_children * sizeof(GameTreeNode*));
     self->action = action;
 }
 
@@ -52,21 +52,34 @@ int gtnode_comparison(const void *gt1, const void *gt2) {
 }
 
 
-void gtnode_expand(GameTreeNode *self, NeuralNetwork *nn) {
+void gtnode_expand(GameTreeNode *self, NeuralNetwork *nn, int max_children) {
     // BeamNode の子を探索する.
+
+    // 子ノードを取得する.
     Action all_actions[LEN_ACTIONS];
-    self->len_children = get_useful_actions(&self->b, all_actions);
-    self->children = malloc(self->len_children * sizeof(GameTreeNode));
-    for (int i = 0; i < self->len_children; i++) {
+    int len_children = get_useful_actions(&self->b, all_actions);
+    GameTreeNode **children = malloc(len_children * sizeof(GameTreeNode*));
+    for (int i = 0; i < len_children; i++) {
         Board b = self->b;
         update_board(&b, all_actions[i]);
         reverse_board(&b);
         GameTreeNode *child = malloc(sizeof(GameTreeNode));
-        gtnode_init(child, &b, 1-self->is_first, self, all_actions[i], nn);
-        self->children[i] = child;
+        gtnode_init(child, &b, 1-self->is_first, self, all_actions[i], nn, max_children);
+        children[i] = child;
     }
+    
     // 子ノードを評価値順に並べ替える.
-    qsort(self->children, self->len_children, sizeof(GameTreeNode*), gtnode_comparison);
+    qsort(children, len_children, sizeof(GameTreeNode*), gtnode_comparison);
+
+    // 評価値が低いものから順に, 最大max_children個をself->childrenに代入する.
+    self->len_children = MIN(len_children, max_children);
+    for (int i = 0; i < len_children; i++) {
+        if (i < self->len_children)
+            self->children[i] = children[i];
+        else
+            gtnode_free(children[i]);
+    }
+    free(children);
 
     // 親ノードの評価値を更新する.
     if (self->len_children == 0)
@@ -106,13 +119,13 @@ int search_1step(GameTreeNode **array, int len_array, NeuralNetwork *nn, int max
 
     // 子ノードを探索する.
     for (int i = 0; i < len_array; i++)
-        gtnode_expand(array[i], nn);
+        gtnode_expand(array[i], nn, max_children);
     
     // 次の探索ノードを列挙する.
     GameTreeNode **new_array = malloc((len_array*max_children) * sizeof(GameTreeNode*));
     int len_new_array = 0;
     for (int i = 0; i < len_array; i++) {
-        for (int j = 0; j < MIN(array[i]->len_children,max_children); j++)
+        for (int j = 0; j < array[i]->len_children; j++)
             new_array[len_new_array++] = array[i]->children[j];
     }
 
@@ -128,7 +141,7 @@ int search_1step(GameTreeNode **array, int len_array, NeuralNetwork *nn, int max
 }
 
 
-void gtnode_update(GameTreeNode *self, int max_children) {
+void gtnode_update(GameTreeNode *self) {
     // 評価値の更新を子ノードも含めて行う.
     
     if (self->len_children == -1)
@@ -141,11 +154,11 @@ void gtnode_update(GameTreeNode *self, int max_children) {
     }
     
     // 子ノードの評価値を更新する.
-    for (int i = 0; i < MIN(self->len_children,max_children); i++)
-        gtnode_update(self->children[i], max_children);
+    for (int i = 0; i < self->len_children; i++)
+        gtnode_update(self->children[i]);
     
     // 最善手を取得する.
-    int idx = gtnode_argmin(self->children, MIN(self->len_children,max_children));
+    int idx = gtnode_argmin(self->children, self->len_children);
     self->evaluation = 1.0 - self->children[idx]->evaluation;
 }
 
@@ -156,7 +169,7 @@ Action game_tree_search(NNAI *self, const Game *game) {
     // パラメータを定義する.
     int max_depth = 5;
     int max_children = 4;
-
+    
     // 変数を初期化する.
     GameTreeNode **array = malloc((int)pow(max_children,max_depth) * sizeof(GameTreeNode*));
     int len_array = 0;
@@ -164,7 +177,7 @@ Action game_tree_search(NNAI *self, const Game *game) {
     // 根を設定する.
     GameTreeNode *root = malloc(sizeof(GameTreeNode));
     Action action;
-    gtnode_init(root, &game->current, game->turn%2, NULL, action, &self->nn);
+    gtnode_init(root, &game->current, game->turn%2, NULL, action, &self->nn, max_children);
     array[len_array++] = root;
 
     // 探索を行う.
@@ -175,11 +188,19 @@ Action game_tree_search(NNAI *self, const Game *game) {
     }
     
     // 評価値を更新する.
-    gtnode_update(root, max_children);
+    gtnode_update(root);
 
     // 最善手を選択する.
-    int idx = gtnode_argmin(root->children, MIN(root->len_children,max_children));
+    int idx = gtnode_argmin(root->children, root->len_children);
     Action res = root->children[idx]->action;
+
+    for (int i = 0; i < root->len_children; i++){
+        Action action = root->children[i]->action;
+        reverse_action(&action);
+        char buffer[32];
+        action_to_string(action, buffer);
+        printf("%s %lf, ", buffer, root->children[i]->evaluation);
+    }
 
     // メモリを解放する.
     free(array);
