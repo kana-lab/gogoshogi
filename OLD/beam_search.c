@@ -42,8 +42,12 @@ void BeamNode_free(BeamNode *self) {
 
 
 int BeamNode_comparison(const void *bn1, const void *bn2) {
-    // 評価値について bn1 > bn2 を返す.
-    return ((BeamNode*)bn1)->evaluation > ((BeamNode*)bn2)->evaluation;
+    // 評価値についての比較を行う.
+    // bn1 <= bn2 のときに -1, そうでないときに 1 を返す.
+    if ((*(BeamNode**)bn1)->evaluation < (*(BeamNode**)bn2)->evaluation)
+        return -1;
+    else
+        return 1;
 }
 
 
@@ -63,6 +67,8 @@ void BeamNode_expand(BeamNode *self, NeuralNetwork *nn, int max_children) {
     qsort(self->children, self->len_children, sizeof(BeamNode*), BeamNode_comparison);
     // 子ノードの一部を削る.
     if (self->len_children > max_children)
+        for (int i = max_children; i < self->len_children; i++)
+            BeamNode_free(self->children[i]);
         self->len_children = max_children;
     // 親ノードの評価値を更新する.
     if (self->len_children == 0)
@@ -76,7 +82,7 @@ int BeamNode_argmax(BeamNode **array, int len_array) {
     // arrayの中で最も評価値が高いもののindexを返す.
     int best = 0;
     for (int i = 0; i < len_array; i++) {
-        if (BeamNode_comparison(array[i], array[best]))
+        if (array[best]->evaluation < array[i]->evaluation)
             best = i;
     }
     return best;
@@ -87,7 +93,7 @@ int BeamNode_argmin(BeamNode **array, int len_array) {
     // arrayの中で最も評価値が低いもののindexを返す.
     int best = 0;
     for (int i = 0; i < len_array; i++) {
-        if (BeamNode_comparison(array[best], array[i]))
+        if (array[i]->evaluation < array[best]->evaluation)
             best = i;
     }
     return best;
