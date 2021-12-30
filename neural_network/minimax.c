@@ -193,7 +193,7 @@ Action game_tree_search(NNAI *self, const Game *game) {
     // 最善手を選択する.
     int idx = gtnode_argmin(root->children, root->len_children);
     Action res = root->children[idx]->action;
-
+    /*
     for (int i = 0; i < root->len_children; i++){
         Action action = root->children[i]->action;
         reverse_action(&action);
@@ -201,7 +201,7 @@ Action game_tree_search(NNAI *self, const Game *game) {
         action_to_string(action, buffer);
         printf("%s %lf, ", buffer, root->children[i]->evaluation);
     }
-
+    */
     // メモリを解放する.
     free(array);
     gtnode_free(root);
