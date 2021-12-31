@@ -18,7 +18,6 @@ digraph {
     β1: 0.9
     β2: 0.999
     ε: 1e-7";
-    fontsize = 24;
     node [shape = box];
 
     "361 inputs" [width = 5];
