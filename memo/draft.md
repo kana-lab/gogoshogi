@@ -58,9 +58,10 @@
 としたとき、添字が大きい順に以下の式で教師データを生成する。
 
 <img src="https://latex.codecogs.com/gif.latex?V(s_i)&space;\leftarrow&space;(1-\alpha)V(s_i)+\alpha&space;R_{i}"/>
+<!-- $$ V(s_i) \leftarrow (1-\alpha)V(s_i) + \alpha R_{i} $$ -->
 
-$$ V(s_i) \leftarrow (1-\alpha)V(s_i) + \alpha R_{i} $$
-
+<img src="https://latex.codecogs.com/gif.latex?R_i&space;=&space;\left\{\begin{array}{ll}1-((1-\gamma)V(s_{i+1})+\gamma&space;R_{i+1})&(i<n)\\0&(i=n)\end{array}\right."/>
+<!--
 $$ R_i =
 \left\{
 \begin{array}{ll}
@@ -68,6 +69,7 @@ $$ R_i =
 0 & (i = n)
 \end{array}
 \right.$$
+-->
 
 $R_i$ を更新するときに $1$ から前の値を引いているのは、手番から見た形で状態が表現されており、先手と後手が毎回入れ替わるからである。<br>
 
