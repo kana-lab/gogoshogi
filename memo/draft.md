@@ -50,14 +50,11 @@
 
 強化学習におけるモンテカルロ法を参考にした。<br>
 自己対戦で棋譜を生成し、状態が
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;s_0,s_1,...,s_n"/>
-<!-- $s_0,s_1,...,s_n$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;s_0,s_1,...,s_n"/><!-- $s_0,s_1,...,s_n$ -->
 のように遷移したものとする。ただし、状態は手番から見た形で表現されているものとする。状態
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;s_i"/>
-<!-- $s_i$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;s_i"/><!-- $s_i$ -->
 におけるニューラルネットワークの出力を
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;V(s_i)"/>
-<!-- $V(s_i)$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;V(s_i)"/><!-- $V(s_i)$ -->
 としたとき、添字が大きい順に以下の式で教師データを生成する。
 
 <img src="https://latex.codecogs.com/gif.latex?V(s_i)&space;\leftarrow&space;(1-\alpha)V(s_i)+\alpha&space;R_{i}"/>
@@ -76,8 +73,7 @@ R_i =
 $$
 -->
 
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;R_i"/>
-<!-- $R_i$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;R_i"/><!-- $R_i$ -->
 を更新するときに1から前の値を引いているのは、手番から見た形で状態が表現されており、先手と後手が毎回入れ替わるからである。<br>
 
 ## 誤差逆伝播法について
