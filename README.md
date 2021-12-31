@@ -83,7 +83,7 @@ $ make
 ## 強化学習について
 
 強化学習におけるモンテカルロ法を参考にした。<br>
-自己対戦で棋譜を生成し、状態が
+1手先までを探索する自己対戦で棋譜を生成し、状態が
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;s_0,s_1,...,s_n"/><!-- $s_0,s_1,...,s_n$ -->
 のように遷移したものとする。 (ただし、状態は手番から見た形で表現されているものとする。) 状態
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;s_i"/><!-- $s_i$ -->
