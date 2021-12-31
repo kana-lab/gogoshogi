@@ -57,7 +57,7 @@
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;V(s_i)"/>
 としたとき、添字が大きい順に以下の式で教師データを生成する。
 
-<img src="https://latex.codecogs.com/gif.latex?V(s_i)&space;\leftarrow&space;(1-\alpha)V(s_i)+\alpha\_R_{i}"/>
+<img src="https://latex.codecogs.com/gif.latex?V(s_i)&space;\leftarrow&space;(1-\alpha)V(s_i)+\alpha&space;R_{i}"/>
 
 $$ V(s_i) \leftarrow (1-\alpha)V(s_i) + \alpha R_{i} $$
 
