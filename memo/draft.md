@@ -60,7 +60,7 @@
 <img src="https://latex.codecogs.com/gif.latex?V(s_i)&space;\leftarrow&space;(1-\alpha)V(s_i)+\alpha&space;R_{i}"/>
 <!-- $$ V(s_i) \leftarrow (1-\alpha)V(s_i) + \alpha R_{i} $$ -->
 
-<img src="https://latex.codecogs.com/gif.latex?R_i&space;=&space;\left\{\begin{array}{ll}1-((1-\gamma)V(s_{i+1})+\gamma&space;R_{i+1})&(i<n)\\0&(i=n)\end{array}\right."/>
+<img src="https://latex.codecogs.com/gif.latex?R_i&space;=&space;\left\{\begin{array}{ll}1-\{(1-\gamma)V(s_{i+1})+\gamma&space;R_{i+1}\}&(i<n)\\0&(i=n)\end{array}\right."/>
 <!--
 $$
 R_i =
