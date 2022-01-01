@@ -13,5 +13,5 @@ digraph {
     "1 output" [width = 1];
 
     "361 inputs" -> "128 nodes (1)" -> "128 nodes (2)" -> "64 nodes (1)" -> "64 nodes (2)" -> "32 nodes (1)" -> "32 nodes (2)" [label = " Affine Layer + ReLU Layer"];
-    "32 nodes (2)" -> "1 output" [label = " Sigmoid Layer"];
+    "32 nodes (2)" -> "1 output" [label = " Affine Layer + Sigmoid Layer"];
 }
