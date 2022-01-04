@@ -178,9 +178,9 @@ aからdへの遷移は、相手の評価値を高くしてしまうので枝刈
 
 ![model](neural_network/tree3.png)
 
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;b&space;=&space;1-min(e,f,g)"/><!-- $b = 1 - min(e,f,g)$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;b&space;=&space;1-min(e,f,g)&space;=&space;0.4"/><!-- $b = 1 - min(e,f,g) = 0.4$ -->
 
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;c&space;=&space;1-h"/><!-- $c = 1 - h$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;c&space;=&space;1-h&space;=&space;0.3"/><!-- $c = 1 - h = 0.3$ -->
 
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;a&space;=&space;1-min(b,c)&space;=&space;1-c"/><!-- $a = 1 - min(b,c) = 1 - c$ -->
 
