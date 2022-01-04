@@ -162,11 +162,27 @@ $$
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;N&space;=&space;2,&space;d&space;=&space;2"/><!-- $N = 2, d = 2$ -->
 のとき<br>
 
-深さ1の探索 (評価値は次の手番側から見た値である.)
+深さ1の探索<br>
+aからdへの遷移は、相手の評価値を高くしてしまうので枝刈りをしてよい。
 
-深さ2の探索
+![model](neural_network/tree1.png)
+
+深さ2の探索<br>
+同様に、bからgへの遷移も枝刈りしてよい。
+
+![model](neural_network/tree2.png)
 
 評価値の更新
+
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;b&space;=&space;1-min(e,f,g)"/><!-- $b = 1 - min(e,f,g)$ -->
+
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;c&space;=&space;1-h"/><!-- $c = 1 - h$ -->
+
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;a&space;=&space;1-min(b,c)&space;=&space;1-c"/><!-- $a = 1 - min(b,c) = 1 - c$ -->
+
+より、aからcに遷移する指手を選択すればよい。
+
+![model](neural_network/tree3.png)
 
 ## 詰みの探索について
 
