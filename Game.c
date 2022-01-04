@@ -375,14 +375,6 @@ int play(Game *game, PlayerInterface *player1, PlayerInterface *player2, bool de
 
         int current_player = (game->turn % 2) ? 1 : -1;
 
-        // まず、詰みかどうかをチェックする
-        if (is_checkmate_with_tfr(game)) {
-            if (debug)
-                debug_print("checkmate.");
-            winner = current_player * (-1);
-            break;
-        }
-
         // 次の行動を取ってくる
         Action action;
         if (current_player == 1) {
