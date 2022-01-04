@@ -150,7 +150,9 @@ $$
 
 評価関数を用いてゲーム木の探索を行った。<br>
 幅優先探索で局面を探索し、その後ミニマックス法で評価値を葉から根の方向で更新する。<br>
-計算量を削減するために、評価値が高い指手をN(=4)個選び、それら以外の指手は探索しないこととした。ゲーム木の高さを
+計算量を削減するために、評価値が高い指手を
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;N(=4)"/><!-- $N(=4)$ -->
+個選び、それら以外の指手は探索しないこととした。ゲーム木の高さを
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;d"/><!-- $d$ -->
 とすると、葉ノードの数は
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;N^d"/><!-- $N^d$ -->
@@ -160,7 +162,7 @@ $$
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;N&space;=&space;2,&space;d&space;=&space;2"/><!-- $N = 2, d = 2$ -->
 のとき<br>
 
-深さ1の探索
+深さ1の探索 (評価値は次の手番側から見た値である.)
 
 深さ2の探索
 
