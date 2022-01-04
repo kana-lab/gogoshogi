@@ -1,0 +1,14 @@
+digraph {
+    rankdir = UD;
+    label = "search 1";
+    node [shape = circle];
+
+    a [label = "a\n   "];
+    b [label = "b\n0.3"];
+    c [label = "c\n0.4"];
+    d [label = "d\n0.6"];
+
+    a -> b;
+    a -> c;
+    a -> d [style = "dashed"];
+}
