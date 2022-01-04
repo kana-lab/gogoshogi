@@ -33,12 +33,16 @@ static void bubble_up(Heap *heap, unsigned int bubble_index) {
  * bubble_indexは、heap中の泡の位置を表す
  */
 static void bubble_down(Heap *heap, unsigned int bubble_index) {
-    while (2*bubble_index + 2 < heap->current_size) {
+    while (2*bubble_index+2 <= heap->current_size) {
         unsigned int min_index;
-        if(heap->q[bubble_index*2+1]->value <= heap->q[bubble_index*2+2]->value) {
-            min_index = bubble_index * 2 + 1;
+        if (2*bubble_index+3 <= heap->current_size) {
+            if(heap->q[bubble_index*2+1]->value <= heap->q[bubble_index*2+2]->value) {
+                min_index = bubble_index * 2 + 1;
+            } else {
+                min_index = bubble_index * 2 + 2;
+            }
         } else {
-            min_index = bubble_index * 2 + 2;
+            min_index = bubble_index * 2 + 1;
         }
         if(heap->q[bubble_index]->value > heap->q[min_index]->value) {
             heap_swap(heap, bubble_index, min_index);
