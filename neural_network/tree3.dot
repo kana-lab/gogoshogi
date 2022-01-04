@@ -1,0 +1,26 @@
+digraph {
+    rankdir = UD;
+    label = "update evaluations";
+    node [shape = circle];
+
+    a [label = "a\n   "];
+    b [label = "b\n0.4"];
+    c [label = "c\n0.3"];
+    d [label = "d\nINF"];
+
+    e [label = "e\n0.6"];
+    f [label = "f\n0.7"];
+    g [label = "g\nINF"];
+
+    h [label = "h\n0.7"];
+
+    a -> b;
+    a -> c;
+    a -> d [style = "dashed"];
+
+    b -> e;
+    b -> f;
+    b -> g [style = "dashed"];
+
+    c -> h;
+}
