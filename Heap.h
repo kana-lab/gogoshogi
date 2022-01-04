@@ -23,12 +23,10 @@ typedef struct {                // ヒープを表す構造体
  * ヒープは最小の要素がheap->q[0]となるようにする事 (参考文献と違うので注意)
  */
 void heap_delete(Heap *heap, unsigned int delete_index) {
-    heap->q[delete_index] = NULL;
     heap->q[delete_index]->value = heap->q[current_size-1]->value;
     heap->q[delete_index]->index_in_heap = delete_index;
     heap->q[current_size-1] = NULL;
     current_size--;
-    bubble_up(heap, delete_index);
     bubble_down(heap, delete_index);
 }
 
