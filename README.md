@@ -153,13 +153,13 @@ $$
 計算量を削減するために、評価値が高い指手を
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;N(=4)"/><!-- $N(=4)$ -->
 個選び、それら以外の指手は探索しないこととした。ゲーム木の高さを
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;d(\approx6)"/><!-- $d(\approx6)$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;H(\approx6)"/><!-- $H(\approx6)$ -->
 とすると、葉ノードの数は
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;N^d"/><!-- $N^d$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;N^H"/><!-- $N^H$ -->
 以下となる。
 <br><br>
 (例) 
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;N&space;=&space;2,&space;d&space;=&space;2"/><!-- $N = 2, d = 2$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;N&space;=&space;2,&space;d&space;=&space;2"/><!-- $N = 2, H = 2$ -->
 のとき<br>
 
 * 深さ1の探索
