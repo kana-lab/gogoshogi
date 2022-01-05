@@ -153,7 +153,7 @@ $$
 計算量を削減するために、評価値が高い指手を
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;N(=4)"/><!-- $N(=4)$ -->
 個選び、それら以外の指手は探索しないこととした。ゲーム木の高さを
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;d"/><!-- $d$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;d(\approx;6)"/><!-- $d$ -->
 とすると、葉ノードの数は
 <img src="https://latex.codecogs.com/gif.latex?\inline&space;N^d"/><!-- $N^d$ -->
 以下となる。
