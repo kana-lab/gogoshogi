@@ -1,0 +1,26 @@
+digraph {
+    rankdir = UD;
+    label = "search 2";
+    node [shape = circle];
+
+    a [label = "a\n   "];
+    b [label = "b\n   "];
+    c [label = "c\n   "];
+    d [label = "d\n   "];
+
+    e [label = "e\n0.6"];
+    f [label = "f\n0.7"];
+    g [label = "g\n0.8"];
+
+    h [label = "h\n0.7"];
+
+    a -> b;
+    a -> c;
+    a -> d [style = "dashed"];
+
+    b -> e;
+    b -> f;
+    b -> g [style = "dashed"];
+
+    c -> h;
+}

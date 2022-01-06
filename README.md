@@ -32,8 +32,8 @@ $ make
 
 # AIの取る戦略
 
-評価関数とゲーム木探索を用いる。
-詳細は未定。
+評価関数を用いてゲーム木を探索する。<br>
+ただし、同時に全探索も行い、完全な読み切りに成功した場合は、その結果を利用する。
 
 
 # 評価関数について
@@ -148,23 +148,43 @@ $$
 
 ## 評価値を用いた探索について
 
-評価関数を用いてゲーム木の探索を行った。<br>
-幅優先探索で局面を探索し、その後ミニマックス法で評価値を葉から根の方向で更新する。<br>
-計算量を削減するために、評価値が高い指手をN(=4)個選び、それら以外の指手は探索しないこととした。ゲーム木の高さを
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;d"/><!-- $d$ -->
+評価関数を用いてゲーム木の探索を行う。<br>
+幅優先探索で局面を探索し、その後ミニマックス法 (ネガマックス法) で評価値を葉から根の方向で更新する。<br>
+計算量を削減するために、評価値が高い指手を
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;N(=4)"/><!-- $N(=4)$ -->
+個選び、それら以外の指手は探索しないこととした。ゲーム木の高さを
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;H(\approx6)"/><!-- $H(\approx6)$ -->
 とすると、葉ノードの数は
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;N^d"/><!-- $N^d$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;N^H"/><!-- $N^H$ -->
 以下となる。
 <br><br>
 (例) 
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;N&space;=&space;2,&space;d&space;=&space;2"/><!-- $N = 2, d = 2$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;N&space;=&space;2,&space;d&space;=&space;2"/><!-- $N = 2, H = 2$ -->
 のとき<br>
 
-深さ1の探索
+* 深さ1の探索
 
-深さ2の探索
+![model](neural_network/tree1.png)
 
-評価値の更新
+aからdへの遷移は、相手の評価値を高くしてしまうので枝刈りをしてよい。
+
+* 深さ2の探索
+
+![model](neural_network/tree2.png)
+
+同様に、bからgへの遷移も枝刈りしてよい。
+
+* 評価値の更新
+
+![model](neural_network/tree3.png)
+
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;b&space;=&space;1-min(e,f)&space;=&space;0.4"/><!-- $b = 1 - min(e,f) = 0.4$ -->
+
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;c&space;=&space;1-h&space;=&space;0.3"/><!-- $c = 1 - h = 0.3$ -->
+
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;a&space;=&space;1-min(b,c)&space;=&space;1-c"/><!-- $a = 1 - min(b,c) = 1 - c$ -->
+
+よって、aからcに遷移する指手を選択すればよい。
 
 ## 詰みの探索について
 
