@@ -65,6 +65,8 @@ int judge(const Game *game);
 
 int get_useful_actions_with_tfr(const Game *game, Action actions[LEN_ACTIONS]);
 
+int get_perfectly_useful_actions_with_tfr(const Game *game, Action actions[LEN_ACTIONS]);
+
 Action get_previous_action(const Game *game);
 
 int play(Game *game, PlayerInterface *player1, PlayerInterface *player2, bool debug);

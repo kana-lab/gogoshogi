@@ -294,6 +294,52 @@ int get_useful_actions_with_tfr(const Game *game, Action actions[LEN_ACTIONS]) {
 }
 
 
+int get_perfectly_useful_actions_with_tfr(const Game *game, Action actions[LEN_ACTIONS]) {
+    /*
+    有用な指手を列挙する.
+    相手の王を詰ませられるときは, その1手を代入する.
+    ※ただし、上の関数とは違い、後手が通常の千日手を決める形の勝利も詰みと見なしてその一手のみを返す
+    ※また、詰みの一手が返されるとき戻り値は-1とする
+    そうでないときは, ごく一部の無駄な指手だけを除いて, ほぼ全ての指手を列挙する.
+    */
+
+    // 選択可能な指手を全て列挙する.
+    Action all_actions[LEN_ACTIONS];
+    int len_all_actions = get_all_actions_with_tfr(game, all_actions);
+
+    // 相手の王を詰ませられるかを判定する.
+    for (int i = 0; i < len_all_actions; i++) {
+        do_action((Game *) game, all_actions[i]);
+        int judge_result = judge(game);
+        assert(judge_result != 1);
+        if (judge_result == -1) {
+            // all_actions[i]を行うと相手の王が詰むとき
+            actions[0] = all_actions[i];
+            undo_action((Game *) game);
+            return -1;
+        } else {
+            undo_action((Game *) game);
+        }
+    }
+
+    // ほぼ明らかに無駄な指手以外を列挙する.
+    int end_index = 0;
+    for (int i = 0; i < len_all_actions; i++) {
+        if (is_useful(&game->current, &all_actions[i]))
+            actions[end_index++] = all_actions[i];
+    }
+
+    if (end_index == 0) {
+        // 全ての指手が削除されたとき, 1手も削除しないことにする.
+        // コーナーケース
+        for (int i = 0; i < len_all_actions; i++)
+            actions[end_index++] = all_actions[i];
+    }
+
+    return end_index;
+}
+
+
 static void print_all_actions_for_debug(Game *game) {
     // 可能な指手を全て出力する
 
