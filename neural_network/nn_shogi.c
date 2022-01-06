@@ -160,11 +160,13 @@ double nn_evaluate(NeuralNetwork *nn, bool is_first, const Board *b){
 
 
 // PlayerInterfaceクラスを継承
+
+/*  // 以下は neural_network.h に移行した
 typedef struct tagNNAI {
     Action (*get_action)(struct tagNNAI *self, const Game *game);
     NeuralNetwork nn;
 } NNAI;
-
+*/
 
 Action get_read1_ai_action(NNAI *self, const Game *game) {
 

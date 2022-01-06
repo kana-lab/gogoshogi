@@ -1,5 +1,5 @@
 #include "mathmatical_functions.c"
-
+#include "neural_network.h"
 
 /*
 ニューラルネットワークの層および最適化関数を実装した.
@@ -10,10 +10,12 @@
 
 // ReLU layer
 
+/*  // 以下は neural_network.h に移行した
 typedef struct{
     int len;     // 入出力ノード数
     double *out; // 出力
 }ReluLayer;
+*/
 
 void relu_init(ReluLayer *layer, int len){
     // ReluLayerを初期化する.
@@ -52,11 +54,13 @@ void relu_backward(const ReluLayer *layer, const double dout[], double dx[]){
 
 // sigmoid layer
 
+/*  // 以下は neural_network.h に移行した
 typedef struct{
     int len;     // 入出力ノード数
     double *out; // 出力結果
     double *dout;// 逆伝播の入力
 }SigmoidLayer;
+*/
 
 void sigmoid_init(SigmoidLayer *layer, int len){
     // SigmoidLayerを初期化する.
@@ -90,6 +94,7 @@ void sigmoid_backward(const SigmoidLayer *layer, double dx[]){
 
 // affine layer
 
+/*  以下は neural_network.h に移行した
 typedef struct{
     int n;       // 入力ノード数
     int m;       // 出力ノード数
@@ -101,6 +106,7 @@ typedef struct{
     double *db;  // bの微分
     double *dx;  // xの微分
 }AffineLayer;
+*/
 
 void affine_init(AffineLayer *layer, int n, int m){
     // AffineLayerを初期化する.
@@ -176,6 +182,7 @@ void affine_clear_d(AffineLayer *layer){
 
 // ------ optimizers ------
 
+/*  以下は neural_network.h に移行した
 typedef struct{
     // 最適化関数で用いられる変数の定義
     double *wv;
@@ -183,6 +190,7 @@ typedef struct{
     double *ws;
     double *bs;
 }Velocities;
+*/
 
 void velocities_init(Velocities *v, const AffineLayer *layer){
     // Velocitiesを初期化する.

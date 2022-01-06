@@ -1,4 +1,5 @@
 #include "layers.c"
+#include "neural_network.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -8,8 +9,8 @@
 ニューラルネットワークを実装した.
 */
 
-
-typedef struct{
+/*  // 以下は neural_network.h に移行した
+typedef struct tagNeuralNetwork{
     // Neural Network
     // Affine[0] -> ReLU[0] -> ... -> ReLU[depth-2] -> Affine[depth-1] -> Sigmoid
     int depth;
@@ -18,7 +19,7 @@ typedef struct{
     ReluLayer *relu;
     SigmoidLayer sigmoid;
 }NeuralNetwork;
-
+*/
 
 void nn_init(NeuralNetwork *nn, int depth, int sizes[depth+1]){
     // NeuralNetworkを初期化する.
