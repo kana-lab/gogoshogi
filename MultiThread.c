@@ -1,8 +1,9 @@
-#include "MultiThread.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
+
+#include "MultiThread.h"
 
 
 Heap construct_heap(size_t max_size) {
@@ -375,15 +376,16 @@ void *collect_garbage(GarbageCollector *self) {
 }
 
 
-MultiExplorer create_multi_explorer(const Game *initial_game_state, bool is_first_player) {
+MultiExplorer create_multi_explorer(const Game *initial_game_state, bool is_first_player, char *nn_filename) {
     MultiExplorer multi_explorer = {
             .tmp_actions={},
             .tmp_actions_len=0,
-            .tmp_actions_lock=PTHREAD_MUTEX_INITIALIZER,
+            .neural_network=(NeuralNetwork *) malloc(sizeof(NeuralNetwork)),
             .first_call_flag_=is_first_player
     };
     multi_explorer.get_action = determine_next_action;
     multi_explorer.shared_resources = construct_shared_resources(initial_game_state, is_first_player);
+    nn_load_model(multi_explorer.neural_network, nn_filename);
 
     for (size_t i = 0; i < NUMBER_OF_THREADS; ++i)
         multi_explorer.explorers[i] = construct_explorer(multi_explorer.shared_resources);
@@ -407,6 +409,9 @@ void destruct_multi_explorer(MultiExplorer *self) {
 
     assert(self->shared_resources->garbage_queue.start_index == self->shared_resources->garbage_queue.end_index);
     destruct_shared_resources(self->shared_resources);
+
+    nn_free(self->neural_network);
+    free(self->neural_network);
 }
 
 
@@ -463,8 +468,6 @@ size_t count_node_(PNode root) {
 
 Action determine_next_action(MultiExplorer *self, const Game *game) {
     SharedResources *const rsc = self->shared_resources;
-    debug_print("garbage count: %ld", rsc->garbage_queue.end_index - rsc->garbage_queue.start_index);
-    debug_print("total released garbage: %ld", rsc->garbage_queue.start_index);
 
     if (!self->first_call_flag_) {
         const Action previous_action = get_previous_action(game);
@@ -473,24 +476,26 @@ Action determine_next_action(MultiExplorer *self, const Game *game) {
         self->first_call_flag_ = false;
     }
 
-    // FIXME
-    {
-        self->tmp_actions_len = get_perfectly_useful_actions_with_tfr(game, self->tmp_actions);
-        assert(self->tmp_actions_len != 0);
-        sleep(9);
-    }
-    debug_print("garbage count: %ld", rsc->garbage_queue.end_index - rsc->garbage_queue.start_index);
-    debug_print("total released garbage: %ld", rsc->garbage_queue.start_index);
+//    {
+//        self->tmp_actions_len = get_perfectly_useful_actions_with_tfr(game, self->tmp_actions);
+//        assert(self->tmp_actions_len != 0);
+//        sleep(9);
+//    }
+
+    // ここで9秒消費される
+    self->tmp_actions_len = get_prioritized_actions(self->neural_network, game, self->tmp_actions);
+
+    debug_print("garbage count: %ld, total released garbage: %ld",
+                rsc->garbage_queue.end_index - rsc->garbage_queue.start_index,
+                rsc->garbage_queue.start_index);
 
     pthread_mutex_lock(&rsc->game_tree_lock);
-    debug_print("searched at least to the depth of %ld.", rsc->root_->children.buf[0]->value_for_heap);
-    debug_print("now counting...");
     debug_print("total number of searched nodes: %ld", count_node_(rsc->root_));
-    debug_print("done.");
 
     Action next_action;
     for (size_t i = 0; i < rsc->root_->children.current_size; ++i) {
         if (rsc->root_->children.buf[i]->value_for_heap == INF_DEPTH) {
+            debug_print("CONGRATULATION! MultiExplorer will win!");
             next_action = rsc->root_->children.buf[i]->action;
             goto NEXT_ACTION_FOUND;
         }
@@ -514,16 +519,34 @@ Action determine_next_action(MultiExplorer *self, const Game *game) {
     return next_action;
 }
 
+/* version 1 */
+
+//int calc_value_for_heap_(PNode node) {
+//    if (node->is_leaf)
+//        return node->value_for_heap;
+//
+//    int ret_val = node->children.buf[0]->value_for_heap + 1;
+//    if (ret_val > INF_DEPTH)
+//        ret_val = INF_DEPTH;
+//
+//    return ret_val;
+//}
+
+/* version 2 */
 
 int calc_value_for_heap_(PNode node) {
     if (node->is_leaf)
         return node->value_for_heap;
 
-    int ret_val = node->children.buf[0]->value_for_heap + 1;
-    if (ret_val > INF_DEPTH)
-        ret_val = INF_DEPTH;
+    assert(node->children.current_size != 0);
+    int ret_value = 0;
+    for (size_t i = 0; i < node->children.current_size; ++i)
+        if (node->children.buf[i]->value_for_heap != INF_DEPTH)
+            ret_value += node->children.buf[i]->value_for_heap + 1;
 
-    return ret_val;
+    if (ret_value == 0)
+        ret_value = INF_DEPTH;
+    return ret_value;
 }
 
 
@@ -531,7 +554,7 @@ PNode get_next_node_unsafe_(Explorer *self, PNode current_node) {
     PNode ret;
 
     if (current_node->is_leaf) {
-        if (!being_edited(current_node)) {
+        if (!being_edited(current_node) && current_node->value_for_heap != INF_DEPTH) {
             // at this point, being_edited(current_node) becomes true.
             current_node->value_for_heap += DEPTH_STRIDE;
             ret = current_node;
@@ -583,10 +606,10 @@ bool update_action_index_(Explorer *self) {
     if (self->local_action_index == new_action_index)
         return false;
 
-    debug_print("in thread %ld: updated action_index from %ld to %ld",
-                self->thread_id,
-                self->local_action_index,
-                new_action_index);
+//    debug_print("in thread %ld: updated action_index from %ld to %ld",
+//                self->thread_id,
+//                self->local_action_index,
+//                new_action_index);
 
     for (size_t i = self->local_action_index; i < new_action_index; ++i)
         do_action(&self->local_game, self->shared_resources->action_history[i]);
@@ -774,6 +797,7 @@ void *explore(Explorer *self) {
             // 必敗状態であり、これ以上の探索は無駄である
             // よって、スタンしつつ相手がミスするのを待つ
             if (status == -1) {
+                debug_print("THAT'S A PITY. MultiExplorer will lose.");
                 debug_print("thread %ld began to stun...", self->thread_id);
                 stun_and_wait_opponents_mistake_(self, leaf);
                 debug_print("thread %ld returned from stun.", self->thread_id);

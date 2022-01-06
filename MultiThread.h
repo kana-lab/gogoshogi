@@ -4,15 +4,15 @@
 
 #include <pthread.h>
 #include "Game.h"
+#include "neural_network/neural_network.h"
 
-#define NUMBER_OF_THREADS      8        // スレッド数
-#define MAX_GARBAGE_QUEUE_SIZE 1000000  // ゴミ(解放待ちのポインタ)を格納するキューのサイズ
-#define INF_DEPTH              100000   // ゲーム木の深さが無限であることを表す値
-#define DEPTH_STRIDE           3        // 1つのスレッドが一度に探索するゲーム木の深さ
+#define NUMBER_OF_THREADS      8         // スレッド数
+#define MAX_GARBAGE_QUEUE_SIZE 1000000   // ゴミ(解放待ちのポインタ)を格納するキューのサイズ
+#define INF_DEPTH              10000000  // ゲーム木の深さが無限であることを表す値
+#define DEPTH_STRIDE           3         // 1つのスレッドが一度に探索するゲーム木の深さ
 
 
 typedef struct tagNode Node, *PNode;
-
 
 /**
  * PNode型の要素を格納するヒープキュークラス & そのメソッド
@@ -165,17 +165,15 @@ typedef struct tagMultiExplorer {
     GarbageCollector *garbage_collector;
 
     // 暫定的な行動を優先度の高い順に格納する
-    // 格納する際はロックを獲得すること
-    // これ必要？他のAIとの統合のさせ方次第
     Action tmp_actions[LEN_ACTIONS];
     int tmp_actions_len;
-    pthread_mutex_t tmp_actions_lock;
+    struct tagNeuralNetwork *neural_network;
 
     /* private */
     bool first_call_flag_;
 } MultiExplorer;
 
-MultiExplorer create_multi_explorer(const Game *initial_game_state, bool is_first_player);
+MultiExplorer create_multi_explorer(const Game *initial_game_state, bool is_first_player, char *nn_filename);
 
 void destruct_multi_explorer(MultiExplorer *self);
 
