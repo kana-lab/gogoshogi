@@ -407,6 +407,10 @@ void destruct_multi_explorer(MultiExplorer *self) {
         destruct_explorer(self->explorers[i]);
     destruct_garbage_collector(self->garbage_collector);
 
+    for (int i = 0; i < NUMBER_OF_THREADS; ++i)
+        free(self->explorers[i]);
+    free(self->garbage_collector);
+
     assert(self->shared_resources->garbage_queue.start_index == self->shared_resources->garbage_queue.end_index);
     destruct_shared_resources(self->shared_resources);
 
@@ -775,8 +779,10 @@ void *explore(Explorer *self) {
         int saved_id = save(&self->local_game);
 
         PNode leaf = get_next_node_(self);
-        if (leaf == NULL)
+        if (leaf == NULL) {
+            assert(saved_id == save(&self->local_game));
             continue;
+        }
 
         int ret_code = expand_(
                 leaf, &self->local_game, &self->shared_resources->garbage_queue, DEPTH_STRIDE
@@ -811,6 +817,9 @@ void *explore(Explorer *self) {
         // at this point, being_edited(leaf) becomes false
         leaf->is_leaf = false;
     }
+
+    // for garbage_collector not to be blocked
+    update_action_index_(self);
 
     pthread_exit(NULL);
 }

@@ -84,8 +84,8 @@ int main(int argc, char *argv[]) {
     Game game = create_game(MAX_TURN);
 
     // プレイヤーの宣言
-    char *path = "neural_network/nn_128x2_64x2_32x2_1.txt";
-    MultiExplorer ai = create_multi_explorer(&game, is_user_first, path);
+    char *path = "/home/riki/デスクトップ/授業関係2a/Tue/gogoshogi/neural_network/nn_128x2_64x2_32x2_1.txt";
+    MultiExplorer ai = create_multi_explorer(&game, !is_user_first, path);
     User user = create_user();
 
     // ゲームを行い、勝者を決める
