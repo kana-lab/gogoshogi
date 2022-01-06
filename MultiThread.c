@@ -6,6 +6,7 @@
 
 
 Heap construct_heap(size_t max_size) {
+    assert(max_size != 0);
     return (Heap) {
             .buf=(PNode *) malloc(max_size * sizeof(PNode)),
             .max_size=max_size,
@@ -17,6 +18,86 @@ Heap construct_heap(size_t max_size) {
 void destruct_heap(Heap *heap) {
     free(heap->buf);
     heap->buf = NULL;
+}
+
+
+/**
+ * index1 及び index2 の位置にあるheapの要素を入れ替える
+ */
+static void heap_swap_(Heap *heap, size_t index1, size_t index2) {
+    PNode memo = heap->buf[index1];
+    heap->buf[index1] = heap->buf[index2];
+    heap->buf[index2] = memo;
+
+    heap->buf[index1]->index_in_parents_heap_ = index1;
+    heap->buf[index2]->index_in_parents_heap_ = index2;
+}
+
+
+/**
+ * 既に述べた2つの参考文献にあるように、delete と replace の後の整合性の調整は
+ * バブルアップ(swim)とバブルダウン(sink)によって行われる
+ * bubble_upでは、泡が親よりも小さい間ずっと浮上させ続ける
+ * bubble_indexは、heap中の泡の位置を表す
+ */
+static void bubble_up_(Heap *heap, size_t bubble_index) {
+    while (bubble_index > 0 &&
+           heap->buf[bubble_index]->value_for_heap < heap->buf[(bubble_index - 1) / 2]->value_for_heap) {
+        heap_swap_(heap, bubble_index, (bubble_index - 1) / 2);
+        bubble_index = (bubble_index - 1) / 2;
+    }
+}
+
+
+/**
+ * bubble_downでは泡が子よりも大きい間ずっと沈ませ続ける
+ * bubble_indexは、heap中の泡の位置を表す
+ */
+static void bubble_down_(Heap *heap, size_t bubble_index) {
+    while (2 * bubble_index + 1 < heap->current_size) {
+        size_t min_index;
+        if (2 * bubble_index + 2 < heap->current_size) {
+            if (heap->buf[bubble_index * 2 + 1]->value_for_heap <= heap->buf[bubble_index * 2 + 2]->value_for_heap) {
+                min_index = bubble_index * 2 + 1;
+            } else {
+                min_index = bubble_index * 2 + 2;
+            }
+        } else {
+            min_index = bubble_index * 2 + 1;
+        }
+        if (heap->buf[bubble_index]->value_for_heap >= heap->buf[min_index]->value_for_heap) {
+            heap_swap_(heap, bubble_index, min_index);
+            bubble_index = min_index;
+        } else break;
+    }
+}
+
+
+void heap_delete(Heap *heap, size_t delete_index) {
+    if (delete_index == heap->current_size - 1) {
+        heap->buf[heap->current_size - 1] = NULL;
+        --heap->current_size;
+    } else {
+        heap->buf[delete_index] = heap->buf[heap->current_size - 1];
+        heap->buf[delete_index]->index_in_parents_heap_ = delete_index;
+        heap->buf[heap->current_size - 1] = NULL;
+        heap->current_size--;
+        bubble_up_(heap, delete_index);
+        bubble_down_(heap, delete_index);
+    }
+}
+
+
+void heap_replace(Heap *heap, size_t replace_index, int replace_value) {
+    heap->buf[replace_index]->value_for_heap = replace_value;
+    bubble_up_(heap, replace_index);
+    bubble_down_(heap, replace_index);
+}
+
+
+void heap_push(Heap *heap, PNode node) {
+    heap->buf[heap->current_size++] = node;
+    bubble_up_(heap, heap->current_size - 1);
 }
 
 
@@ -48,7 +129,7 @@ void destruct_node(PNode node) {
 
 void destruct_node_recursively(PNode root) {
     if (root->is_leaf) {
-        assert(root->value_for_heap == 0);
+        assert(root->value_for_heap == 0 || root->value_for_heap == INF_DEPTH);
         destruct_node(root);
     } else {
         for (size_t i = 0; i < root->children.current_size; ++i)
@@ -64,7 +145,7 @@ size_t get_index_in_parents_heap(PNode self) {
 
 
 bool being_edited(PNode node) {
-    return node->is_leaf && node->value_for_heap != 0;
+    return (node->is_leaf) && (node->value_for_heap != 0 && node->value_for_heap != INF_DEPTH);
 }
 
 
@@ -197,17 +278,21 @@ Explorer *construct_explorer(SharedResources *shared_resources) {
 
 GarbageCollector *construct_garbage_collector(
         SharedResources *shared_resources,
-        const PExplorer *p_explorers,
+        const PExplorer p_explorers[NUMBER_OF_THREADS],
         int number_of_explorers
 ) {
     GarbageCollector *self = (GarbageCollector *) malloc(sizeof(GarbageCollector));
     GarbageCollector garbage_collector = (GarbageCollector) {
             .shared_resources=shared_resources,
-            .p_explorers=p_explorers,
             .number_of_explorers=number_of_explorers
     };
 
     memcpy(self, &garbage_collector, sizeof(GarbageCollector));
+
+    for (size_t i = 0; i < NUMBER_OF_THREADS; ++i) {
+        PExplorer *tmp = (PExplorer *) &self->p_explorers[i];
+        *tmp = p_explorers[i];
+    }
 
     pthread_create(&self->thread_id, NULL, (void *) collect_garbage, self);
 
@@ -264,7 +349,7 @@ void *collect_garbage(GarbageCollector *self) {
             }
         }
 
-        if (garbage.timing_of_delete > 0) {
+        if (garbage.timing_of_delete != -1) {  // unsignedの値と-1の比較、あまり良くない
             size_t minimum_action_index = garbage.timing_of_delete;
 
             for (;;) {
@@ -280,13 +365,11 @@ void *collect_garbage(GarbageCollector *self) {
             }
 
             destruct_node_recursively(garbage.root);
-        } else if (garbage.timing_of_delete == -1) {
+        } else {
             // 葉から解放することでバックプロパゲーションによる不具合を防ぐ
             // 編集中のノードはバックプロパゲーションが完了するまでbeing_edited == trueであり
             // free_node_from_leaves_ではその待ち合わせを行うため
             free_nodes_from_leaves_(garbage.root);
-        } else {
-            assert(false);
         }
     }
 }
@@ -296,7 +379,8 @@ MultiExplorer create_multi_explorer(const Game *initial_game_state, bool is_firs
     MultiExplorer multi_explorer = {
             .tmp_actions={},
             .tmp_actions_len=0,
-            .tmp_actions_lock=PTHREAD_MUTEX_INITIALIZER
+            .tmp_actions_lock=PTHREAD_MUTEX_INITIALIZER,
+            .first_call_flag_=is_first_player
     };
     multi_explorer.get_action = determine_next_action;
     multi_explorer.shared_resources = construct_shared_resources(initial_game_state, is_first_player);
@@ -361,10 +445,33 @@ static void change_root_(SharedResources *self, Action previous_action) {
 }
 
 
+size_t count_node_(PNode root) {
+    if (root->is_leaf) {
+        if (root->value_for_heap != 0 && root->value_for_heap != INF_DEPTH) {
+            return root->value_for_heap;
+        } else {
+            return 1;
+        }
+    } else {
+        size_t sum_ = 0;
+        for (size_t i = 0; i < root->children.current_size; ++i)
+            sum_ += count_node_(root->children.buf[i]);
+        return sum_;
+    }
+}
+
+
 Action determine_next_action(MultiExplorer *self, const Game *game) {
-    const Action previous_action = get_previous_action(game);
     SharedResources *const rsc = self->shared_resources;
-    change_root_(rsc, previous_action);
+    debug_print("garbage count: %ld", rsc->garbage_queue.end_index - rsc->garbage_queue.start_index);
+    debug_print("total released garbage: %ld", rsc->garbage_queue.start_index);
+
+    if (!self->first_call_flag_) {
+        const Action previous_action = get_previous_action(game);
+        change_root_(rsc, previous_action);
+    } else {
+        self->first_call_flag_ = false;
+    }
 
     // FIXME
     {
@@ -372,8 +479,14 @@ Action determine_next_action(MultiExplorer *self, const Game *game) {
         assert(self->tmp_actions_len != 0);
         sleep(9);
     }
+    debug_print("garbage count: %ld", rsc->garbage_queue.end_index - rsc->garbage_queue.start_index);
+    debug_print("total released garbage: %ld", rsc->garbage_queue.start_index);
 
     pthread_mutex_lock(&rsc->game_tree_lock);
+    debug_print("searched at least to the depth of %ld.", rsc->root_->children.buf[0]->value_for_heap);
+    debug_print("now counting...");
+    debug_print("total number of searched nodes: %ld", count_node_(rsc->root_));
+    debug_print("done.");
 
     Action next_action;
     for (size_t i = 0; i < rsc->root_->children.current_size; ++i) {
@@ -418,7 +531,7 @@ PNode get_next_node_unsafe_(Explorer *self, PNode current_node) {
     PNode ret;
 
     if (current_node->is_leaf) {
-        if (being_edited(current_node)) {
+        if (!being_edited(current_node)) {
             // at this point, being_edited(current_node) becomes true.
             current_node->value_for_heap += DEPTH_STRIDE;
             ret = current_node;
@@ -453,8 +566,10 @@ PNode get_next_node_(Explorer *self) {
     pthread_mutex_lock(&self->shared_resources->game_tree_lock);
 
     // shared_resources.root_の不整合を防ぐ
-    if (self->local_action_index != get_action_index(self->shared_resources))
+    if (self->local_action_index != get_action_index(self->shared_resources)) {
+        pthread_mutex_unlock(&self->shared_resources->game_tree_lock);
         return NULL;
+    }
 
     PNode ret = get_next_node_unsafe_(self, get_game_tree_root(self->shared_resources));
 
@@ -545,6 +660,11 @@ int expand_(PNode leaf, const Game *game, GarbageQueue *garbage_queue, int depth
             }
         }
 
+        if (child_len == 0) {
+            children[child_len++] = construct_node(true, (Action) {}, current_player, leaf, 0);
+            ret_code = 1;
+        }
+
         leaf->children = construct_heap(child_len);
         for (int i = 0; i < child_len; ++i)
             heap_push(&leaf->children, children[i]);
@@ -629,6 +749,8 @@ void *explore(Explorer *self) {
     while (!is_going_to_finish(self->shared_resources)) {
         update_action_index_(self);
 
+        int saved_id = save(&self->local_game);
+
         PNode leaf = get_next_node_(self);
         if (leaf == NULL)
             continue;
@@ -636,6 +758,8 @@ void *explore(Explorer *self) {
         int ret_code = expand_(
                 leaf, &self->local_game, &self->shared_resources->garbage_queue, DEPTH_STRIDE
         );
+
+        load(&self->local_game, saved_id);
 
         // leaf.is_leaf must be true
         // leaf.value_for_heap must NOT be 0

@@ -129,17 +129,17 @@ typedef struct {
 } Explorer, *PExplorer;
 
 typedef struct {
-    pthread_t thread_id;                // スレッドID
-    SharedResources *shared_resources;  // 共有リソースへのポインタ
-    const PExplorer *p_explorers;       // ゲーム木の探索者を格納する配列
-    const int number_of_explorers;      // ゲーム木の探索者の数
+    pthread_t thread_id;                             // スレッドID
+    SharedResources *shared_resources;               // 共有リソースへのポインタ
+    const PExplorer p_explorers[NUMBER_OF_THREADS];  // ゲーム木の探索者を格納する配列
+    const int number_of_explorers;                   // ゲーム木の探索者の数
 } GarbageCollector;
 
 Explorer *construct_explorer(SharedResources *shared_resources);
 
 GarbageCollector *construct_garbage_collector(
         SharedResources *shared_resources,
-        const PExplorer *p_explorers,
+        const PExplorer p_explorers[NUMBER_OF_THREADS],
         int number_of_explorers
 );
 
@@ -170,6 +170,9 @@ typedef struct tagMultiExplorer {
     Action tmp_actions[LEN_ACTIONS];
     int tmp_actions_len;
     pthread_mutex_t tmp_actions_lock;
+
+    /* private */
+    bool first_call_flag_;
 } MultiExplorer;
 
 MultiExplorer create_multi_explorer(const Game *initial_game_state, bool is_first_player);
