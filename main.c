@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "Game.h"
-
-#include "neural_network/minimax.c"
+#include "MultiThread.h"
+#include "neural_network/neural_network.h"
 
 
 /*******************************
@@ -59,34 +59,6 @@ User create_user() {
 
 
 /******************************
- * AIを表すクラスAIの定義
- ******************************/
-
-// PlayerInterfaceクラスを継承
-typedef struct tagAI {
-    Action (*get_action)(struct tagAI *self, const Game *game);
-
-    char buf[32];
-} AI;
-
-
-Action get_ai_action(AI *self, const Game *game) {
-    Game *game_hack = (Game *) game;
-    game_hack->turn++;
-    Action result = get_user_action((User *) self, game_hack);
-    game_hack->turn--;
-    return result;
-}
-
-
-AI create_ai() {
-    return (AI) {
-            .get_action=get_ai_action,
-    };
-}
-
-
-/******************************
  * 以下main関数
  ******************************/
 
@@ -108,14 +80,13 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    // プレイヤーの宣言
-    //AI ai = create_ai();
-    NNAI ai = create_minimax_ai("neural_network/nn_128x2_64x2_32x2_1.txt");
-
-    User user = create_user();
-
     // 初期化済みのゲームクラスを作る
     Game game = create_game(MAX_TURN);
+
+    // プレイヤーの宣言
+    char *path = "neural_network/nn_128x2_64x2_32x2_1.txt";
+    MultiExplorer ai = create_multi_explorer(&game, is_user_first, path);
+    User user = create_user();
 
     // ゲームを行い、勝者を決める
     int winner;
@@ -134,8 +105,9 @@ int main(int argc, char *argv[]) {
         puts("Draw");
     }
 
-    // Game型変数の解放
+    // 各変数の解放
     destruct_game(&game);
+    destruct_multi_explorer(&ai);
 
     return 0;
 }
