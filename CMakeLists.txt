@@ -17,7 +17,9 @@ add_executable(
         Hash.c
         Hash.h
         MultiThread.c
-        MultiThread.h)
+        MultiThread.h
+        neural_network/minimax.c
+        neural_network/neural_network.h)
 
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
