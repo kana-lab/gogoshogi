@@ -15,4 +15,12 @@ add_executable(
         gamedef.c
         gamedef.h
         Hash.c
-        Hash.h)
+        Hash.h
+        MultiThread.c
+        MultiThread.h)
+
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+target_link_libraries(main PRIVATE m Threads::Threads)
