@@ -61,6 +61,8 @@ size_t get_index_in_parents_heap(PNode self);
 
 bool being_edited(PNode node);
 
+char *show_children(PNode node);  // for debug
+
 
 /**
  * PNode型のゴミ(解放待ちのポインタ)、及びそれを格納するキューを表すクラス & それらのメソッド

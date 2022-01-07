@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -97,7 +98,9 @@ void heap_replace(Heap *heap, size_t replace_index, int replace_value) {
 
 
 void heap_push(Heap *heap, PNode node) {
-    heap->buf[heap->current_size++] = node;
+    heap->buf[heap->current_size] = node;
+    heap->buf[heap->current_size]->index_in_parents_heap_ = heap->current_size;
+    ++heap->current_size;
     bubble_up_(heap, heap->current_size - 1);
 }
 
@@ -454,7 +457,9 @@ static void change_root_(SharedResources *self, Action previous_action) {
 }
 
 
+// for debug
 size_t count_node_(PNode root) {
+#ifdef DEBUG_MODE
     if (root->is_leaf) {
         if (root->value_for_heap != 0 && root->value_for_heap != INF_DEPTH) {
             return root->value_for_heap;
@@ -467,6 +472,25 @@ size_t count_node_(PNode root) {
             sum_ += count_node_(root->children.buf[i]);
         return sum_;
     }
+#endif
+}
+
+
+// for debug
+void measure_depth_(PNode root, int current_depth, int *max_depth, int *min_depth) {
+#ifdef DEBUG_MODE
+    if (root->is_leaf) {
+        if (root->value_for_heap != INF_DEPTH) {
+            if (current_depth > *max_depth)
+                *max_depth = current_depth;
+            if (current_depth < *min_depth)
+                *min_depth = current_depth;
+        }
+    } else {
+        for (int i = 0; i < root->children.current_size; ++i)
+            measure_depth_(root->children.buf[i], current_depth + 1, max_depth, min_depth);
+    }
+#endif
 }
 
 
@@ -480,12 +504,6 @@ Action determine_next_action(MultiExplorer *self, const Game *game) {
         self->first_call_flag_ = false;
     }
 
-//    {
-//        self->tmp_actions_len = get_perfectly_useful_actions_with_tfr(game, self->tmp_actions);
-//        assert(self->tmp_actions_len != 0);
-//        sleep(9);
-//    }
-
     // ここで9秒消費される
     self->tmp_actions_len = get_prioritized_actions(self->neural_network, game, self->tmp_actions);
 
@@ -494,7 +512,12 @@ Action determine_next_action(MultiExplorer *self, const Game *game) {
                 rsc->garbage_queue.start_index);
 
     pthread_mutex_lock(&rsc->game_tree_lock);
+
     debug_print("total number of searched nodes: %ld", count_node_(rsc->root_));
+    int min_depth = INF_DEPTH, max_depth = 0;
+    measure_depth_(self->shared_resources->root_, 0, &max_depth, &min_depth);
+    debug_print("game tree depth = %d (min), %d (max)", min_depth, max_depth);
+
 
     Action next_action;
     for (size_t i = 0; i < rsc->root_->children.current_size; ++i) {
@@ -523,6 +546,46 @@ Action determine_next_action(MultiExplorer *self, const Game *game) {
     return next_action;
 }
 
+
+char *show_children(PNode node) {
+#ifdef DEBUG_MODE
+    static char ret_buf[1024] = {0};
+    int counter = 0;
+
+    counter += sprintf(ret_buf + counter,
+                       "[parent] value_for_heap: %d, is_leaf: %s, len_children: %ld\n",
+                       node->value_for_heap,
+                       (node->is_leaf) ? "true" : "false",
+                       node->children.current_size);
+
+    const size_t child_count = node->children.current_size;
+    PNode nodes[LEN_ACTIONS];
+    for (size_t i = 0; i < child_count; ++i) {
+        nodes[i] = node->children.buf[0];
+        heap_delete(&node->children, 0);
+    }
+
+    for (size_t i = 0; i < child_count; ++i) {
+        heap_push(&node->children, nodes[i]);
+    }
+
+    for (size_t i = 0; i < child_count; ++i) {
+        if (i % 10 == 0 && i)
+            counter += sprintf(ret_buf + counter, "\n");
+        char buf[32];
+        action_to_string(nodes[i]->action, buf);
+        counter += sprintf(ret_buf + counter,
+                           "[%ld]%s:%d, ",
+                           nodes[i]->index_in_parents_heap_,
+                           buf,
+                           nodes[i]->value_for_heap);
+    }
+
+    return ret_buf;
+#endif
+}
+
+
 /* version 1 */
 
 //int calc_value_for_heap_(PNode node) {
@@ -538,18 +601,38 @@ Action determine_next_action(MultiExplorer *self, const Game *game) {
 
 /* version 2 */
 
+//int calc_value_for_heap_(PNode node) {
+//    if (node->is_leaf)
+//        return node->value_for_heap;
+//
+//    assert(node->children.current_size != 0);
+//    int ret_value = 0;
+//    for (size_t i = 0; i < node->children.current_size; ++i)
+//        if (node->children.buf[i]->value_for_heap != INF_DEPTH)
+//            ret_value += node->children.buf[i]->value_for_heap + 1;
+//
+//    if (ret_value == 0)
+//        ret_value = INF_DEPTH;
+//    return ret_value;
+//}
+
+/* version 3 */
+
 int calc_value_for_heap_(PNode node) {
     if (node->is_leaf)
         return node->value_for_heap;
 
-    assert(node->children.current_size != 0);
     int ret_value = 0;
-    for (size_t i = 0; i < node->children.current_size; ++i)
-        if (node->children.buf[i]->value_for_heap != INF_DEPTH)
-            ret_value += node->children.buf[i]->value_for_heap + 1;
+    if (node->player == 1) {  // 自分の行動である場合
+        for (size_t i = 0; i < node->children.current_size; ++i)
+            if (node->children.buf[i]->value_for_heap != INF_DEPTH)
+                ret_value += node->children.buf[i]->value_for_heap + 1;
+        if (ret_value == 0)
+            ret_value = INF_DEPTH;
+    } else {  // 相手の行動である場合
+        ret_value = node->children.buf[0]->value_for_heap;
+    }
 
-    if (ret_value == 0)
-        ret_value = INF_DEPTH;
     return ret_value;
 }
 
@@ -740,6 +823,7 @@ int delete_propagation_(SharedResources *rsc, PNode node) {
             return delete_propagation_(rsc, node->parent);
         } else {
             heap_delete(&node->parent->children, node->index_in_parents_heap_);
+            value_for_heap_propagation_(node->parent);
             node->parent = NULL;
             garbage_queue_push(&rsc->garbage_queue, (Garbage) {node, -1});
             return 0;
