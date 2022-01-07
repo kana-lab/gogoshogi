@@ -598,6 +598,8 @@ char *show_children(PNode node) {
     }
 
     return ret_buf;
+#else
+    return NULL;
 #endif
 }
 
