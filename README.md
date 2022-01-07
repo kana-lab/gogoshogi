@@ -159,7 +159,7 @@ $$
 以下となる。
 <br><br>
 (例) 
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;N&space;=&space;2,&space;d&space;=&space;2"/><!-- $N = 2, H = 2$ -->
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;N&space;=&space;2,&space;H&space;=&space;2"/><!-- $N = 2, H = 2$ -->
 のとき<br>
 
 * 深さ1の探索
