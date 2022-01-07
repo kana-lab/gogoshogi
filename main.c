@@ -3,7 +3,7 @@
 #include <string.h>
 #include "Game.h"
 #include "MultiThread.h"
-#include "neural_network/neural_network.h"
+#include "trash/normal_ai.c"
 
 
 /*******************************
@@ -22,14 +22,20 @@ Action get_user_action(User *self, const Game *game) {
     // 前のプレイヤーの行動を表示し、ユーザーからの入力を待つ
 
     // 前のプレイヤーの行動を表示
-    Action previous_action = get_previous_action(game);
-    Action null_action = {};
-    if (!action_equal(&previous_action, &null_action)) {
-        if (game->turn % 2)  // 自分が先手であるとき
-            reverse_action(&previous_action);
-        action_to_string(previous_action, self->buf);
-        puts(self->buf);
-    }
+
+    /*
+     * AIの勝利時にAIの最後の行動が表示されないバグを防ぐため、
+     * 以下は MultiThread.c の determine_next_action に移行した。
+     */
+
+//    Action previous_action = get_previous_action(game);
+//    Action null_action = {};
+//    if (!action_equal(&previous_action, &null_action)) {
+//        if (game->turn % 2)  // 自分が先手であるとき
+//            reverse_action(&previous_action);
+//        action_to_string(previous_action, self->buf);
+//        puts(self->buf);
+//    }
 
     // ユーザーからの入力を受ける
     scanf("%31s", self->buf);

@@ -498,6 +498,15 @@ void measure_depth_(PNode root, int current_depth, int *max_depth, int *min_dept
 }
 
 
+void display_action_(Action action, int turn) {
+    char buf[32];
+    if (turn % 2 == 0)  // 後手なら回転させる
+        reverse_action(&action);
+    action_to_string(action, buf);
+    puts(buf);
+}
+
+
 Action determine_next_action(MultiExplorer *self, const Game *game) {
     SharedResources *const rsc = self->shared_resources;
 
@@ -547,6 +556,9 @@ Action determine_next_action(MultiExplorer *self, const Game *game) {
     pthread_mutex_unlock(&rsc->game_tree_lock);
 
     change_root_(rsc, next_action);
+
+    display_action_(next_action, game->turn);
+
     return next_action;
 }
 
