@@ -9,7 +9,7 @@
  * 定数の定義
  ************************/
 
-#define DEBUG_MODE  // デバッグ時以外はコメントアウトすること！
+//#define DEBUG_MODE  // デバッグ時以外はコメントアウトすること！
 
 #define EMPTY 0
 #define FU    1
