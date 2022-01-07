@@ -135,6 +135,7 @@ typedef struct {
     SharedResources *shared_resources;               // 共有リソースへのポインタ
     const PExplorer p_explorers[NUMBER_OF_THREADS];  // ゲーム木の探索者を格納する配列
     const int number_of_explorers;                   // ゲーム木の探索者の数
+    volatile bool is_going_to_finish_;               // 終了が要求されているか否か
 } GarbageCollector;
 
 Explorer *construct_explorer(SharedResources *shared_resources);

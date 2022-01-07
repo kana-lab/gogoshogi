@@ -288,7 +288,8 @@ GarbageCollector *construct_garbage_collector(
     GarbageCollector *self = (GarbageCollector *) malloc(sizeof(GarbageCollector));
     GarbageCollector garbage_collector = (GarbageCollector) {
             .shared_resources=shared_resources,
-            .number_of_explorers=number_of_explorers
+            .number_of_explorers=number_of_explorers,
+            .is_going_to_finish_=false
     };
 
     memcpy(self, &garbage_collector, sizeof(GarbageCollector));
@@ -345,7 +346,7 @@ void *collect_garbage(GarbageCollector *self) {
         Garbage garbage = garbage_queue_pop(&self->shared_resources->garbage_queue);
 
         if (is_null_garbage(garbage)) {
-            if (is_going_to_finish(self->shared_resources)) {
+            if (self->is_going_to_finish_) {
                 pthread_exit(NULL);
             } else {
                 usleep(50000);  // 50 ms
@@ -405,9 +406,10 @@ MultiExplorer create_multi_explorer(const Game *initial_game_state, bool is_firs
 
 void destruct_multi_explorer(MultiExplorer *self) {
     self->shared_resources->is_going_to_finish_ = true;
-
     for (size_t i = 0; i < NUMBER_OF_THREADS; ++i)
         destruct_explorer(self->explorers[i]);
+
+    self->garbage_collector->is_going_to_finish_ = true;
     destruct_garbage_collector(self->garbage_collector);
 
     for (int i = 0; i < NUMBER_OF_THREADS; ++i)
@@ -472,6 +474,8 @@ size_t count_node_(PNode root) {
             sum_ += count_node_(root->children.buf[i]);
         return sum_;
     }
+#else
+    return 0;
 #endif
 }
 
