@@ -3,7 +3,7 @@
 #include <string.h>
 #include "Game.h"
 #include "MultiThread.h"
-#include "trash/normal_ai.c"
+#include "neural_network/neural_network.h"
 
 
 /*******************************
